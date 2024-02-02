@@ -6,19 +6,19 @@ add_library(game)
 target_sources(game
   PUBLIC
   FILE_SET CXX_MODULES FILES
-  p2.cc
-  bullets.cc
-  component.cc
-  entity.cc
-  system.cc
-  player.cc
-  event.cc
-  net.cc
-  types.cc
   common/vector_math.cc
   common/sparse_set.cc
   common/collision.cc
   common/ring_buffer.cc
+  ecs/component.cc
+  ecs/entity.cc
+  ecs/system.cc
+  p2.cc
+  bullets.cc
+  player.cc
+  event.cc
+  net.cc
+  types.cc
   )
 
 find_package(asio REQUIRED)

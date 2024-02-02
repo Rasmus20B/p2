@@ -1,13 +1,10 @@
 module;
 
-#include <sys/timeb.h>
-
 #include <thread>
 #include <system_error>
 #include <vector>
 #include <ratio>
 #include <chrono>
-#include <iostream>
 
 #include <raylib.h>
 
@@ -36,9 +33,6 @@ void render(World &w) {
   BeginDrawing();
   ClearBackground(BLACK);
 
-  // Draw PLayer
-  DrawRectangle(w.pl.pos.x, w.pl.pos.y, 30, 30, GREEN);
-
   // Draw Live Bullets
   for(auto b: w.live_bullets) {
     for(auto e : b.positions) {
@@ -47,18 +41,18 @@ void render(World &w) {
   }
 
   for(auto i: w.em.get_associated_entities<CTransform>()) {
-    DrawRectangle(component_manager.transforms[i].position.x, component_manager.transforms[i].position.y, 50, 50, RED);
+    DrawRectangle(component_manager.transforms[i].position.x, 
+      component_manager.transforms[i].position.y, 
+      component_manager.transforms[i].scale.x, 
+      component_manager.transforms[i].scale.y, RED);
   }
-  for(auto i: component_manager.transforms) {
-  }
-
   DrawFPS(200, 200);
   EndDrawing();
 }
 
 void tick(World &w) {
 
-  handle_player(w.pl, w.live_bullets);
+  handle_player(w.live_bullets);
   // Bullet movement
   for(auto &b: w.live_bullets) {
     for(auto &p : b.positions) {
@@ -66,10 +60,7 @@ void tick(World &w) {
       p.y += b.velocity.y ;
     }
   }
-
   moveTransformAll();
-
-
 }
 
 export void gameloop() {
@@ -90,27 +81,26 @@ export void gameloop() {
 
   auto player = world.em.create_entity();
   world.em.add_component<CTransform>(player, {
-      .position = { 200, 200 },
+      .position = { 1000, 1000 },
       .scale = { 50, 50 },
       .rotation = 90
-      });
+    });
   world.em.add_component<CVelocity>(player, {
-      .velocity { 0, -1 }
-      });
+      .velocity { 0, 0 }
+    });
+  world.em.add_component<CHealth>(player, {
+      .health = 3
+    });
+  world.em.add_component<CInput>(player, {
+    });
 
-  std::cout << "Successfully added components\n";
   auto event_queue = std::make_shared<RingBuffer<Event, 128>>();
-
   NetClient nc(event_queue);
-
 
   float currentSlice = 0.f;
   int lastFrameTime = 0;
   auto lastTimePt = std::chrono::high_resolution_clock::now();
   auto deltaTime = std::chrono::high_resolution_clock::now() - lastTimePt;
-
-  world.pl.pos.x = 500;
-  world.pl.pos.y = 600;
 
   while(!WindowShouldClose()) {
     currentSlice += lastFrameTime;

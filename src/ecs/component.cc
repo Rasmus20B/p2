@@ -39,9 +39,10 @@ export struct ComponentManager {
   ComponentManager() {
     transforms.resize(10000);
     velocities.resize(10000);
-    transforms.resize(10000);
-    transforms.resize(10000);
-    transforms.resize(10000);
+    health.resize(10000);
+    sprites.resize(10000);
+    vms.resize(10000);
+    inputs.resize(10000);
   }
   std::vector<CTransform> transforms;
   std::vector<CVelocity> velocities;
