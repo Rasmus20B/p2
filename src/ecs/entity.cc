@@ -37,7 +37,7 @@ export struct EntityManager {
   }
 
   void delete_entity(Entity e) {
-    for(auto i : std::views::iota(0, std::to_underlying(ComponentID::Size) - 1)) {
+    for(auto i : std::views::iota(0, std::to_underlying(ComponentID::Size) -1)) {
       e_maps[i].remove(e);
     }
     pool.remove(e);
@@ -45,7 +45,7 @@ export struct EntityManager {
   }
 
   template<typename T>
-  void add_component(Entity e, T component)  ;
+  void add_component(Entity e, T component);
 
   template<>
   void add_component(Entity e, CTransform t)  {

@@ -35,15 +35,14 @@ void render(World &w) {
   ClearBackground(BLACK);
   auto t_entities = w.em.get_associated_entities<CTransform>();
 
-  // std::for_each(t_entities.begin(), t_entities.end(), [](const auto i) {
-
   for(auto i: t_entities) {
     DrawRectangle(component_manager.transforms[i].position.x, 
       component_manager.transforms[i].position.y, 
       component_manager.transforms[i].scale.x, 
       component_manager.transforms[i].scale.y, RED);
   };
-  DrawText(std::to_string(w.em.e_count).c_str(), 200, 400, 20, ORANGE);
+
+  std::cout << "Entity count: " << w.em.e_count << "\n";
 
   DrawFPS(200, 200);
   EndDrawing();
@@ -54,10 +53,6 @@ void tick(World &w) {
   // Bullet movement
   auto t_entities = w.em.get_associated_entities<CTransform>();
   std::vector<Entity> entities(t_entities.begin(), t_entities.end());
-  auto tmp = w.em.get_associated_entities<CTransform>();
-  for(auto t: tmp) {
-    entities.push_back(t);
-  }
   // t_entities.merge(w.em.get_associated_entities<CVelocity>());
   moveTransformAll(entities);
   checkOutOfBounds(entities);

@@ -50,8 +50,8 @@ export void removeDeads(EntityManager& em) {
   while(!deads.empty()) {
     auto e = deads.front();
     deads.pop();
-    em.delete_entity(e);
     reuse.push(e);
+    em.delete_entity(e);
   }
 }
 
