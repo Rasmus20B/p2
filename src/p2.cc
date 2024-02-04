@@ -86,6 +86,17 @@ export void gameloop() {
   world.em.add_component<CInput>(player, {
     });
 
+  auto other = world.em.create_entity();
+  world.em.add_components<CTransform, CVelocity, CHealth>(other, {
+      .position = { 300, 300 },
+      .scale = { 50, 50 },
+      .rotation = 90
+      }, {
+      .velocity { 0.02, 0.04 },
+      }, {
+      .health = 20
+      }
+      );
   auto event_queue = std::make_shared<RingBuffer<Event, 128>>();
   NetClient nc(event_queue);
 

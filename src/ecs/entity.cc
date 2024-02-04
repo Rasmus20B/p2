@@ -44,6 +44,11 @@ export struct EntityManager {
     e_count--;
   }
 
+  template<typename ...T>
+  void add_components(Entity e, T&&... components) {
+    (add_component(e, (components)),...);
+  }
+
   template<typename T>
   void add_component(Entity e, T component);
 
