@@ -13,6 +13,9 @@ import config;
 
 #include <thread>
 
+#include <raylib.h>
+#include <raymath.h>
+
 export module ecs.system;
 
 export void moveTransform(CTransform& t, CVelocity& v) {
@@ -46,6 +49,21 @@ export void checkOutOfBounds(std::vector<Entity> es) {
        component_manager.transforms[i].position.y > config.windowDimensions.y) {
       deads.push(i);
     }
+  }
+}
+
+export void orientToAttractor(std::vector<Entity> es) {
+  for(auto i: es) {
+    auto att = component_manager.attractions[i].attractor;
+    auto dvec = Vector2Subtract(component_manager.transforms[att].position, component_manager.transforms[i].position);
+    auto val = (dvec.x * dvec.x) + (dvec.y * dvec.y);
+
+    float dist = sqrtf(val);
+
+    float cur_power = component_manager.attractions[i].gravity / dist;
+
+    component_manager.velocities[i].velocity.x = (dvec.x/dist) * cur_power;
+    component_manager.velocities[i].velocity.y = (dvec.y/dist) * cur_power;
   }
 }
 

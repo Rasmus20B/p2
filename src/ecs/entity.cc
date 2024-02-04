@@ -37,7 +37,7 @@ export struct EntityManager {
   }
 
   void delete_entity(Entity e) {
-    for(auto i : std::views::iota(0, std::to_underlying(ComponentID::Size) -1)) {
+    for(auto i : std::views::iota(0, std::to_underlying(ComponentID::Size))) {
       e_maps[i].remove(e);
     }
     pool.remove(e);
@@ -87,6 +87,13 @@ export struct EntityManager {
     return;
   }
 
+  template<>
+  void add_component(Entity e, CAttraction i)  {
+    component_manager.attractions[e] = i;
+    e_maps[std::to_underlying(ComponentID::Attractor)].try_emplace(e);
+    return;
+  }
+
   template<typename T>
   std::vector<Entity> get_associated_entities() noexcept {
     if constexpr(std::is_same_v<T, CTransform>) {
@@ -103,6 +110,9 @@ export struct EntityManager {
     }
     else if constexpr (std::is_same_v<T, CInput>) {
       return std::vector<Entity>(e_maps[std::to_underlying(ComponentID::Input)].begin(), e_maps[std::to_underlying(ComponentID::Input)].end());
+    }
+    else if constexpr (std::is_same_v<T, CAttraction>) {
+      return std::vector<Entity>(e_maps[std::to_underlying(ComponentID::Attractor)].begin(), e_maps[std::to_underlying(ComponentID::Attractor)].end());
     }
     return {};
   }

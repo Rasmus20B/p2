@@ -21,6 +21,7 @@ export enum class ComponentID {
   Interpreter,
   Input,
   Sprite,
+  Attractor,
   Size,
 };
 
@@ -83,6 +84,11 @@ export struct CInput {
 
 };
 
+export struct CAttraction {
+  Entity attractor;
+  f32 gravity;
+};
+
 export struct ComponentManager {
 
   ComponentManager() {
@@ -92,6 +98,7 @@ export struct ComponentManager {
     sprites.resize(10000);
     vms.resize(10000);
     inputs.resize(10000);
+    attractions.resize(10000);
   }
   std::vector<CTransform> transforms;
   std::vector<CVelocity> velocities;
@@ -99,6 +106,7 @@ export struct ComponentManager {
   std::vector<CSprite> sprites;
   std::vector<CInterpreter> vms;
   std::vector<CInput> inputs;
+  std::vector<CAttraction> attractions;
 };
 
 export inline ComponentManager component_manager{};

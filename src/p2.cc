@@ -38,10 +38,10 @@ void render(World &w) {
   auto t_entities = w.em.get_associated_entities<CTransform>();
 
   for(auto i: t_entities) {
-    DrawRectangle(component_manager.transforms[i].position.x, 
+    DrawCircle(component_manager.transforms[i].position.x, 
       component_manager.transforms[i].position.y, 
       component_manager.transforms[i].scale.x, 
-      component_manager.transforms[i].scale.y, RED);
+      RED);
   };
 
   std::cout << "Entity count: " << w.em.e_count << "\n";
@@ -55,7 +55,9 @@ void tick(World &w) {
   // Bullet movement
   auto t_entities = w.em.get_associated_entities<CTransform>();
   std::vector<Entity> entities(t_entities.begin(), t_entities.end());
-  // t_entities.merge(w.em.get_associated_entities<CVelocity>());
+  auto t_attractors = w.em.get_associated_entities<CAttraction>();
+  std::vector<Entity> a_entities(t_attractors.begin(), t_attractors.end());
+  orientToAttractor(a_entities);
   moveTransformAll(entities);
   checkOutOfBounds(entities);
 
@@ -68,7 +70,7 @@ export void gameloop() {
   SetConfigFlags(FLAG_MSAA_4X_HINT);
   SetTargetFPS(60);
 
-  config.windowDimensions = { 640, 480 };
+  config.windowDimensions = { 1080, 768 };
 
   InitWindow(config.windowDimensions.x, config.windowDimensions.y, "p2");
 
@@ -77,7 +79,7 @@ export void gameloop() {
   auto player = world.em.create_entity();
   world.em.add_component<CTransform>(player, {
       .position = { 300, 300 },
-      .scale = { 50, 50 },
+      .scale = { 10, 10 },
       .rotation = 90
     });
   world.em.add_component<CVelocity>(player, {
@@ -90,18 +92,21 @@ export void gameloop() {
     });
 
 
-  for(int i = 0; i < 1000; ++i) {
+  for(int i = 0; i < 2000; ++i) {
     auto other = world.em.create_entity();
-    world.em.add_components<CTransform, CVelocity, CHealth>(other, {
-        .position = { get_rand_float(640 ), get_rand_float(480 ) },
-        .scale = { 10, 10 },
+    world.em.add_components<CTransform, CVelocity, CHealth, CAttraction>(other, {
+        .position = { get_rand_float(config.windowDimensions.x ), get_rand_float(config.windowDimensions.y ) },
+        .scale = { 3, 3 },
         .rotation = 90
         }, {
-        .velocity { 0.02, 0.04 },
+        .velocity { get_rand_float(0.04, -0.04), get_rand_float(0.04, -0.04) },
         }, {
-        .health = 20
+        .health = 20,
+        }, {
+          .attractor = player,
+          .gravity = 0.8,
         }
-        );
+      );
   }
   auto event_queue = std::make_shared<RingBuffer<Event, 128>>();
   NetClient nc(event_queue);
