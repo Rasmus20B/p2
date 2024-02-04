@@ -5,22 +5,23 @@ module;
 #include <vector>
 #include <ratio>
 #include <chrono>
+#include <iostream>
+#include <algorithm>
 
 #include <raylib.h>
 
 import bullets;
 import player;
 import event;
-import component;
 import ring_buffer;
 import net;
-import entity;
-import system;
+import types;
+import ecs;
 
 export module p2;
 
-constinit float GAME_LOGIC_SPEED = 1.f;
 constinit float SLICE = 1.f;
+
 float dt = 0.f;;
 
 struct World {
@@ -32,56 +33,52 @@ struct World {
 void render(World &w) {
   BeginDrawing();
   ClearBackground(BLACK);
+  auto t_entities = w.em.get_associated_entities<CTransform>();
 
-  // Draw Live Bullets
-  for(auto b: w.live_bullets) {
-    for(auto e : b.positions) {
-      DrawRectangle(e.x, e.y, 50, 50, RED);
-    }
-  }
+  // std::for_each(t_entities.begin(), t_entities.end(), [](const auto i) {
 
-  for(auto i: w.em.get_associated_entities<CTransform>()) {
+  for(auto i: t_entities) {
     DrawRectangle(component_manager.transforms[i].position.x, 
       component_manager.transforms[i].position.y, 
       component_manager.transforms[i].scale.x, 
       component_manager.transforms[i].scale.y, RED);
-  }
+  };
+  DrawText(std::to_string(w.em.e_count).c_str(), 200, 400, 20, ORANGE);
+
   DrawFPS(200, 200);
   EndDrawing();
 }
 
 void tick(World &w) {
-
-  handle_player(w.live_bullets);
+  handle_player(w.em, w.live_bullets);
   // Bullet movement
-  for(auto &b: w.live_bullets) {
-    for(auto &p : b.positions) {
-      p.x += b.velocity.x ;
-      p.y += b.velocity.y ;
-    }
+  auto t_entities = w.em.get_associated_entities<CTransform>();
+  std::vector<Entity> entities(t_entities.begin(), t_entities.end());
+  auto tmp = w.em.get_associated_entities<CTransform>();
+  for(auto t: tmp) {
+    entities.push_back(t);
   }
-  moveTransformAll();
+  // t_entities.merge(w.em.get_associated_entities<CVelocity>());
+  moveTransformAll(entities);
+  checkOutOfBounds(entities);
+
+  removeDeads(w.em);
 }
 
 export void gameloop() {
   SetConfigFlags(FLAG_MSAA_4X_HINT);
   SetTargetFPS(60);
   const Vector2 screenDim = {
-    .x = (float)GetMonitorWidth(0),
-    .y = (float)GetMonitorHeight(0)
+    .x = (float)640,
+    .y = (float)480,
   };
   InitWindow(screenDim.x, screenDim.y, "p2");
 
   World world;
-  // BulletMgr l1;
-  // l1.set_count(5, 3);
-  // l1.set_mode(BM_PL_ATTACK);
-  // l1.set_velocity(0, 0.5f);
-  // world.live_bullets.push_back(l1);
 
   auto player = world.em.create_entity();
   world.em.add_component<CTransform>(player, {
-      .position = { 1000, 1000 },
+      .position = { 300, 300 },
       .scale = { 50, 50 },
       .rotation = 90
     });

@@ -4,6 +4,8 @@ module;
 #include <vector>
 #include <raylib.h>
 
+import types;
+
 export module bullets;
 
 
@@ -23,12 +25,12 @@ export enum BulletMode {
 
 export struct BulletMgr {
 
-  void set_count(int l, int c) {
+  void set_count(i32 l, i32 c) {
     count.x = l;
     count.y = c;
     positions.resize(l * c);
 
-    int x = 0, y = 0;
+    i32 x = 0;
 
     for(auto &b: positions) {
       b.x = x;
@@ -37,14 +39,14 @@ export struct BulletMgr {
     }
   }
 
-  void set_origin(int x, int y) {
+  void set_origin(i32 x, i32 y) {
     for(auto& p: positions) {
       p.x = x;
       p.y = y;
     }
   }
 
-  void set_angle(int a1) {
+  void set_angle(i32 a1) {
     angle = a1;
   }
 
@@ -60,7 +62,7 @@ export struct BulletMgr {
   void shoot() {
   }
 
-  Vector2 get_bullet(int l, int c) {
+  Vector2 get_bullet(i32 l, i32 c) {
     return positions[l * c + positions.size() - l];
   }
 

@@ -10,15 +10,16 @@ target_sources(game
   common/sparse_set.cc
   common/collision.cc
   common/ring_buffer.cc
+  common/types.cc
   ecs/component.cc
   ecs/entity.cc
   ecs/system.cc
+  ecs/ecs.cc
   p2.cc
   bullets.cc
   player.cc
   event.cc
   net.cc
-  types.cc
   )
 
 find_package(asio REQUIRED)
