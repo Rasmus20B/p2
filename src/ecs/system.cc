@@ -3,6 +3,7 @@ module;
 import ecs.component;
 import ecs.entity;
 import types;
+import config;
 
 #include <iostream>
 #include <algorithm>
@@ -40,7 +41,9 @@ export void moveTransformAll(std::vector<Entity> es) {
 export void checkOutOfBounds(std::vector<Entity> es) {
   for(auto i: es) {
     if(component_manager.transforms[i].position.x < 0 ||
-       component_manager.transforms[i].position.y < 0) {
+       component_manager.transforms[i].position.y < 0 ||
+       component_manager.transforms[i].position.x > config.windowDimensions.x ||
+       component_manager.transforms[i].position.y > config.windowDimensions.y) {
       deads.push(i);
     }
   }

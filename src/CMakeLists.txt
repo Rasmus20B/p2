@@ -9,6 +9,7 @@ target_sources(game
   common/vector_math.cc
   common/sparse_set.cc
   common/collision.cc
+  common/rand_helper.cc
   common/ring_buffer.cc
   common/types.cc
   ecs/component.cc
@@ -17,6 +18,7 @@ target_sources(game
   ecs/ecs.cc
   p2.cc
   bullets.cc
+  config.cc
   player.cc
   event.cc
   net.cc

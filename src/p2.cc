@@ -17,6 +17,8 @@ import ring_buffer;
 import net;
 import types;
 import ecs;
+import config;
+import rand_helper;
 
 export module p2;
 
@@ -63,11 +65,10 @@ void tick(World &w) {
 export void gameloop() {
   SetConfigFlags(FLAG_MSAA_4X_HINT);
   SetTargetFPS(60);
-  const Vector2 screenDim = {
-    .x = (float)640,
-    .y = (float)480,
-  };
-  InitWindow(screenDim.x, screenDim.y, "p2");
+
+  config.windowDimensions = { 640, 480 };
+
+  InitWindow(config.windowDimensions.x, config.windowDimensions.y, "p2");
 
   World world;
 
@@ -86,17 +87,20 @@ export void gameloop() {
   world.em.add_component<CInput>(player, {
     });
 
-  auto other = world.em.create_entity();
-  world.em.add_components<CTransform, CVelocity, CHealth>(other, {
-      .position = { 300, 300 },
-      .scale = { 50, 50 },
-      .rotation = 90
-      }, {
-      .velocity { 0.02, 0.04 },
-      }, {
-      .health = 20
-      }
-      );
+
+  for(int i = 0; i < 100; ++i) {
+    auto other = world.em.create_entity();
+    world.em.add_components<CTransform, CVelocity, CHealth>(other, {
+        .position = { get_rand_float(640), get_rand_float(480) },
+        .scale = { 10, 10 },
+        .rotation = 90
+        }, {
+        .velocity { 0.02, 0.04 },
+        }, {
+        .health = 20
+        }
+        );
+  }
   auto event_queue = std::make_shared<RingBuffer<Event, 128>>();
   NetClient nc(event_queue);
 

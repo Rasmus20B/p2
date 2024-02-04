@@ -20,14 +20,12 @@ export void handle_player(EntityManager& em, std::vector<BulletMgr>& bm) {
   // Player Movement
   if (IsKeyDown(KEY_UP)) {
     component_manager.velocities[1].velocity.y = -0.5f;
-    DrawText("Pressing UP.", 200, 200, 20, BLUE);
   } else if (IsKeyDown(KEY_DOWN)) {
     component_manager.velocities[1].velocity.y = 0.5f;
   } else {
     component_manager.velocities[1].velocity.y = 0;
   }
   if (IsKeyDown(KEY_LEFT)) {
-    DrawText("Pressing left.", 200, 200, 20, BLUE);
     component_manager.velocities[1].velocity.x = -0.5f;
   } else if (IsKeyDown(KEY_RIGHT)) {
     component_manager.velocities[1].velocity.x = 0.5f;
@@ -59,8 +57,5 @@ export void handle_player(EntityManager& em, std::vector<BulletMgr>& bm) {
         { 
         0, -0.5
         }});
-
-
   }
-
 }
