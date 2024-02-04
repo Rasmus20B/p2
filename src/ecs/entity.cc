@@ -90,19 +90,19 @@ export struct EntityManager {
   template<typename T>
   std::vector<Entity> get_associated_entities() noexcept {
     if constexpr(std::is_same_v<T, CTransform>) {
-      return std::vector<Entity>(e_maps[0].begin(), e_maps[0].end());
+      return std::vector<Entity>(e_maps[std::to_underlying(ComponentID::Transform)].begin(), e_maps[std::to_underlying(ComponentID::Transform)].end());
     }
     else if constexpr(std::is_same_v<T, CVelocity>) {
-      return std::vector<Entity>(e_maps[1].begin(), e_maps[1].end());
+      return std::vector<Entity>(e_maps[std::to_underlying(ComponentID::Velocity)].begin(), e_maps[std::to_underlying(ComponentID::Velocity)].end());
     }
     else if constexpr (std::is_same_v<T, CInterpreter>) {
-      return std::vector<Entity>(e_maps[2].begin(), e_maps[2].end());
+      return std::vector<Entity>(e_maps[std::to_underlying(ComponentID::Interpreter)].begin(), e_maps[std::to_underlying(ComponentID::Interpreter)].end());
     }
     else if constexpr (std::is_same_v<T, CHealth>) {
-      return std::vector<Entity>(e_maps[3].begin(), e_maps[3].end());
+      return std::vector<Entity>(e_maps[std::to_underlying(ComponentID::Health)].begin(), e_maps[std::to_underlying(ComponentID::Health)].end());
     }
     else if constexpr (std::is_same_v<T, CInput>) {
-      return std::vector<Entity>(e_maps[4].begin(), e_maps[4].end());
+      return std::vector<Entity>(e_maps[std::to_underlying(ComponentID::Input)].begin(), e_maps[std::to_underlying(ComponentID::Input)].end());
     }
     return {};
   }
