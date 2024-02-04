@@ -63,6 +63,8 @@ void tick(World &w) {
 }
 
 export void gameloop() {
+
+  srand(time(0));
   SetConfigFlags(FLAG_MSAA_4X_HINT);
   SetTargetFPS(60);
 
@@ -88,10 +90,10 @@ export void gameloop() {
     });
 
 
-  for(int i = 0; i < 100; ++i) {
+  for(int i = 0; i < 1000; ++i) {
     auto other = world.em.create_entity();
     world.em.add_components<CTransform, CVelocity, CHealth>(other, {
-        .position = { get_rand_float(640), get_rand_float(480) },
+        .position = { get_rand_float(640 ), get_rand_float(480 ) },
         .scale = { 10, 10 },
         .rotation = 90
         }, {
