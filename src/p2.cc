@@ -38,13 +38,11 @@ void render(World &w) {
   auto t_entities = w.em.get_associated_entities<CTransform>();
 
   for(auto i: t_entities) {
-    DrawCircle(component_manager.transforms[i].position.x, 
-      component_manager.transforms[i].position.y, 
+    DrawCircleV(component_manager.transforms[i].position,
       component_manager.transforms[i].scale.x, 
       RED);
   };
 
-  std::cout << "Entity count: " << w.em.e_count << "\n";
 
   DrawFPS(200, 200);
   EndDrawing();
@@ -58,6 +56,7 @@ void tick(World &w) {
   auto t_attractors = w.em.get_associated_entities<CAttraction>();
   std::vector<Entity> a_entities(t_attractors.begin(), t_attractors.end());
   orientToAttractor(a_entities);
+  checkCollisionsWithSingleEntity(a_entities, 1);
   moveTransformAll(entities);
   checkOutOfBounds(entities);
 
@@ -94,7 +93,7 @@ export void gameloop() {
 
   for(int i = 0; i < 2000; ++i) {
     auto other = world.em.create_entity();
-    world.em.add_components<CTransform, CVelocity, CHealth, CAttraction>(other, {
+    world.em.add_components<CTransform, CVelocity, CHealth, CAttraction, CCollider>(other, {
         .position = { get_rand_float(config.windowDimensions.x ), get_rand_float(config.windowDimensions.y ) },
         .scale = { 3, 3 },
         .rotation = 90
@@ -105,9 +104,16 @@ export void gameloop() {
         }, {
           .attractor = player,
           .gravity = 0.8,
+        }, {
+          .callback = [=](const auto a, const auto b) {
+            deads.push(a);
+            component_manager.transforms[b].scale.x += 0.05;
+            component_manager.transforms[b].scale.y += 0.05;
+          }
         }
       );
   }
+
   auto event_queue = std::make_shared<RingBuffer<Event, 128>>();
   NetClient nc(event_queue);
 

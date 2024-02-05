@@ -73,7 +73,7 @@ export struct CInterpreter {
   };
   u16 pc = 0;
   u16 sp = 0;
-  std::vector<u8> memory;
+  std::vector<StackSlot> memory;
 };
 
 export struct CSprite {
@@ -94,6 +94,7 @@ export struct ComponentManager {
   ComponentManager() {
     transforms.resize(10000);
     velocities.resize(10000);
+    colliders.resize(10000);
     health.resize(10000);
     sprites.resize(10000);
     vms.resize(10000);
@@ -107,6 +108,7 @@ export struct ComponentManager {
   std::vector<CInterpreter> vms;
   std::vector<CInput> inputs;
   std::vector<CAttraction> attractions;
+  std::vector<CCollider> colliders;
 };
 
 export inline ComponentManager component_manager{};

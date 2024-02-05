@@ -94,10 +94,18 @@ export struct EntityManager {
     return;
   }
 
+  template<>
+  void add_component(Entity e, CCollider i)  {
+    component_manager.colliders[e] = i;
+    e_maps[std::to_underlying(ComponentID::Collider)].try_emplace(e);
+    return;
+  }
+
   template<typename T>
   std::vector<Entity> get_associated_entities() noexcept {
     if constexpr(std::is_same_v<T, CTransform>) {
-      return std::vector<Entity>(e_maps[std::to_underlying(ComponentID::Transform)].begin(), e_maps[std::to_underlying(ComponentID::Transform)].end());
+      return /* e_maps[std::to_underlying(ComponentID::Transform)].dense; */
+        std::vector<Entity>(e_maps[std::to_underlying(ComponentID::Transform)].begin(), e_maps[std::to_underlying(ComponentID::Transform)].end());
     }
     else if constexpr(std::is_same_v<T, CVelocity>) {
       return std::vector<Entity>(e_maps[std::to_underlying(ComponentID::Velocity)].begin(), e_maps[std::to_underlying(ComponentID::Velocity)].end());

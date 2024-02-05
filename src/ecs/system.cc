@@ -57,13 +57,19 @@ export void orientToAttractor(std::vector<Entity> es) {
     auto att = component_manager.attractions[i].attractor;
     auto dvec = Vector2Subtract(component_manager.transforms[att].position, component_manager.transforms[i].position);
     auto val = (dvec.x * dvec.x) + (dvec.y * dvec.y);
-
     float dist = sqrtf(val);
-
     float cur_power = component_manager.attractions[i].gravity / dist;
-
     component_manager.velocities[i].velocity.x = (dvec.x/dist) * cur_power;
     component_manager.velocities[i].velocity.y = (dvec.y/dist) * cur_power;
+  }
+}
+
+export void checkCollisionsWithSingleEntity(std::vector<Entity> es, Entity e) {
+  for(auto i: es) {
+    if (CheckCollisionCircles(component_manager.transforms[i].position, component_manager.transforms[i].scale.x,
+          component_manager.transforms[e].position, component_manager.transforms[e].scale.x)) {
+      component_manager.colliders[i].callback(i, e);
+    }
   }
 }
 
