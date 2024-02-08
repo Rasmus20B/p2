@@ -57,7 +57,6 @@ int main() {
   }
   /* INIT OVER */
 
-
   auto t_entities = world.em.get_associated_entities<CTransform>();
   std::vector<Entity> entities(t_entities.begin(), t_entities.end());
   auto t_attractors = world.em.get_associated_entities<CAttraction>();
