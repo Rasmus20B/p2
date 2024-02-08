@@ -12,6 +12,7 @@ target_sources(game
   common/rand_helper.cc
   common/ring_buffer.cc
   common/types.cc
+  ecs/archetype.cc
   ecs/component.cc
   ecs/entity.cc
   ecs/system.cc

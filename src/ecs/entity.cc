@@ -104,8 +104,7 @@ export struct EntityManager {
   template<typename T>
   std::vector<Entity> get_associated_entities() noexcept {
     if constexpr(std::is_same_v<T, CTransform>) {
-      return /* e_maps[std::to_underlying(ComponentID::Transform)].dense; */
-        std::vector<Entity>(e_maps[std::to_underlying(ComponentID::Transform)].begin(), e_maps[std::to_underlying(ComponentID::Transform)].end());
+      return std::vector<Entity>(e_maps[std::to_underlying(ComponentID::Transform)].begin(), e_maps[std::to_underlying(ComponentID::Transform)].end());
     }
     else if constexpr(std::is_same_v<T, CVelocity>) {
       return std::vector<Entity>(e_maps[std::to_underlying(ComponentID::Velocity)].begin(), e_maps[std::to_underlying(ComponentID::Velocity)].end());
@@ -124,6 +123,7 @@ export struct EntityManager {
     }
     return {};
   }
+
 
   pool_type pool;
   usize e_count = 1;

@@ -7,6 +7,8 @@ module;
 #include <chrono>
 #include <iostream>
 #include <algorithm>
+#include <execution>
+#include <ranges>
 
 #include <raylib.h>
 
@@ -19,6 +21,8 @@ import types;
 import ecs;
 import config;
 import rand_helper;
+
+#include "common/benchmark.h"
 
 export module p2;
 
@@ -55,10 +59,10 @@ void tick(World &w) {
   std::vector<Entity> entities(t_entities.begin(), t_entities.end());
   auto t_attractors = w.em.get_associated_entities<CAttraction>();
   std::vector<Entity> a_entities(t_attractors.begin(), t_attractors.end());
-  orientToAttractor(a_entities);
-  checkCollisionsWithSingleEntity(a_entities, 1);
-  moveTransformAll(entities);
-  checkOutOfBounds(entities);
+  BENCH(orientToAttractor(a_entities), "orient");
+  BENCH(moveTransformAll(entities), "MOVE");
+  BENCH(checkCollisionsWithSingleEntity(a_entities, 1), "collision");
+  BENCH(checkOutOfBounds(entities), "oob");
 
   removeDeads(w.em);
 }
@@ -90,8 +94,7 @@ export void gameloop() {
   world.em.add_component<CInput>(player, {
     });
 
-
-  for(int i = 0; i < 2000; ++i) {
+  for(int i = 0; i < 4000; ++i) {
     auto other = world.em.create_entity();
     world.em.add_components<CTransform, CVelocity, CHealth, CAttraction, CCollider>(other, {
         .position = { get_rand_float(config.windowDimensions.x ), get_rand_float(config.windowDimensions.y ) },
@@ -105,10 +108,11 @@ export void gameloop() {
           .attractor = player,
           .gravity = 0.8,
         }, {
-          .callback = [=](const auto a, const auto b) {
+          .callback { [=](const auto a, const auto b) {
             deads.push(a);
-            component_manager.transforms[b].scale.x += 0.05;
-            component_manager.transforms[b].scale.y += 0.05;
+            component_manager.transforms[b].scale.x += 0.005;
+            component_manager.transforms[b].scale.y += 0.005;
+            }
           }
         }
       );
@@ -128,6 +132,7 @@ export void gameloop() {
       tick(world);
     }
     render(world);
+
     deltaTime = std::chrono::high_resolution_clock::now() - lastTimePt;
     lastTimePt = std::chrono::high_resolution_clock::now();
 

@@ -6,7 +6,6 @@ module;
 
 export module event;
 
-
 export enum EventType {
   ET_PL_MOVE,
   ET_SIZE

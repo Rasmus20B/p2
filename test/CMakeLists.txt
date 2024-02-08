@@ -16,9 +16,11 @@ find_package(gtest REQUIRED)
 add_executable(ringbuffer_test ringbuffer_test.cc)
 add_executable(collision_test collision_test.cc)
 add_executable(sparseset_test sparse_set.cc)
+add_executable(system_benchmark bench/systems.cc)
 
 target_link_libraries(ringbuffer_test GTest::gtest_main game)
 target_link_libraries(sparseset_test GTest::gtest_main game)
 target_link_libraries(collision_test GTest::gtest_main raylib game)
+target_link_libraries(system_benchmark GTest::gtest_main game)
 
 include(GoogleTest)
