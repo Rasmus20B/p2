@@ -87,6 +87,7 @@ export struct CInput {
 export struct CAttraction {
   Entity attractor;
   f32 gravity;
+  Vector2 cache;
 };
 
 export struct ComponentManager {

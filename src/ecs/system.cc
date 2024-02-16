@@ -12,6 +12,8 @@ import config;
 #include <functional>
 #include <cassert>
 
+#include <print>
+
 #include <arm_neon.h>
 
 #include <thread>
@@ -151,9 +153,17 @@ export [[gnu::always_inline]] void orientToAttractorSIMDQ(const std::vector<Enti
 export void orientToAttractor(const std::vector<Entity>& es) {
 #pragma clang loop vectorize(enable)
   for(auto i: es) {
-    __builtin_prefetch(&component_manager.attractions[(2 * i + 1) % component_manager.attractions.size()]);
     const auto att = component_manager.attractions[i].attractor;
-    auto dvec = Vector2Subtract(component_manager.transforms[att].position, component_manager.transforms[i].position);
+    auto entity_pos = component_manager.transforms[i].position;
+    auto attractor_pos = component_manager.transforms[att].position;
+
+    if(attractor_pos.x == component_manager.attractions[i].cache.x &&
+        attractor_pos.y == component_manager.attractions[i].cache.y) {
+      continue;
+    }
+    component_manager.attractions[i].cache.x = attractor_pos.x;
+    component_manager.attractions[i].cache.y = attractor_pos.y;
+    auto dvec = Vector2Subtract(attractor_pos, component_manager.transforms[i].position);
     auto val = (dvec.x * dvec.x) + (dvec.y * dvec.y);
     float dist = sqrtf(val);
     float cur_power = component_manager.attractions[i].gravity / dist;

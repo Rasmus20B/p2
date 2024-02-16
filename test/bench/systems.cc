@@ -1,4 +1,5 @@
 #include <chrono>
+#include <print>
 
 import ecs;
 import player;
@@ -15,7 +16,6 @@ struct World {
 };
 
 int main() {
-
   /* INIT */
   World world;
   auto player = world.em.create_entity();
@@ -42,6 +42,7 @@ int main() {
         }, {
           .attractor = player,
           .gravity = 0.8,
+          .cache = { 0, 0 }
         }, {
           .callback { [=](const auto a, const auto b) {
             deads.push(a);
@@ -54,14 +55,15 @@ int main() {
   }
   /* INIT OVER */
 
-  auto t_entities = world.em.get_associated_entities<CTransform2D>();
-  std::vector<Entity> entities(t_entities.begin(), t_entities.end());
-  auto t_attractors = world.em.get_associated_entities<CAttraction>();
-  std::vector<Entity> a_entities(t_attractors.begin(), t_attractors.end());
-  (orientToAttractor(a_entities));
-  (moveTransformAll(entities));
-  (checkCollisionsWithSingleEntity(a_entities, 1));
-  (checkOutOfBounds(entities));
-
+  for(auto i = 0; i < 1000; ++i) {
+    auto t_entities = world.em.get_associated_entities<CTransform2D>();
+    std::vector<Entity> entities(t_entities.begin(), t_entities.end());
+    auto t_attractors = world.em.get_associated_entities<CAttraction>();
+    std::vector<Entity> a_entities(t_attractors.begin(), t_attractors.end());
+    (orientToAttractor(a_entities));
+    (moveTransformAll(entities));
+    (checkCollisionsWithSingleEntity(a_entities, 1));
+    (checkOutOfBounds(entities));
+  }
   return 0;
 }
