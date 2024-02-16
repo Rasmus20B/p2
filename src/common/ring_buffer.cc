@@ -38,7 +38,7 @@ class RingBuffer {
       return true;
     }
 
-    [[nodiscard]] std::expected<T, RB_exceptions> pop() {
+    std::expected<T, RB_exceptions> pop() {
       std::scoped_lock l(m);
       if(empty()) return std::unexpected(RB_exceptions::RB_Empty);
       auto ret = arr[tail];
