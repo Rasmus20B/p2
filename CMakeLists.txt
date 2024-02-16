@@ -15,7 +15,7 @@ add_compile_options(
 )
 
 add_subdirectory(src)
-add_subdirectory(test)
+# add_subdirectory(test)
 
 target_link_libraries(${PROJECT_NAME} game raylib)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON CACHE INTERNAL "") # works

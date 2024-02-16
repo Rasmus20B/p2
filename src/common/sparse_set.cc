@@ -1,7 +1,8 @@
 module;
-#include <__expected/expected.h>
+#include <expected>
 #include <cstddef>
 #include <vector>
+#include <cstdint>
 
 
 export module sparse_set;

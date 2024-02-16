@@ -3,6 +3,7 @@ module;
 #include <utility>
 #include <vector>
 #include <array>
+#include <cmath>
 
 #include <raylib.h>
 
