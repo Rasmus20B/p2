@@ -1,6 +1,7 @@
 module;
 
 import types;
+import ring_buffer;
 import sparse_set;
 import ecs.component;
 
@@ -13,8 +14,8 @@ import ecs.component;
 
 export module ecs.entity;
 
-export inline std::queue<Entity> reuse;
-export inline std::queue<Entity> deads;
+export inline RingBuffer<Entity, 10000> reuse;
+export inline RingBuffer<Entity, 10000> deads;
 
 export struct EntityManager {
 
@@ -27,7 +28,7 @@ export struct EntityManager {
       reuse.pop();
       pool.try_emplace(id);
       e_count++;
-      return id;
+     return id;
     } else {
       pool.try_emplace(e_cur);
       e_count++;
@@ -46,56 +47,56 @@ export struct EntityManager {
 
   template<typename ...T>
   void add_components(Entity e, T&&... components) {
-    (add_component(e, (components)),...);
+    (add_component(e, std::forward<T&&>(components)), ...);
   }
 
   template<typename T>
-  void add_component(Entity e, T component);
+  void add_component(Entity e, T&& component);
 
   template<>
-  void add_component(Entity e, CTransform t)  {
+  void add_component(Entity e, CTransform2D&& t)  {
     component_manager.transforms[e] = t;
-    e_maps[std::to_underlying(ComponentID::Transform)].try_emplace(e);
+    e_maps[std::to_underlying(ComponentID::Transform2D)].try_emplace(e);
     return;
   }
 
   template<>
-  void add_component(Entity e, CVelocity v)  {
+  void add_component(Entity e, CVelocity&& v)  {
     component_manager.velocities[e] = v;
     e_maps[std::to_underlying(ComponentID::Velocity)].try_emplace(e);
     return;
   }
 
   template<>
-  void add_component(Entity e, CInterpreter i)  {
+  void add_component(Entity e, CInterpreter&& i)  {
     component_manager.vms[e] = i;
     e_maps[std::to_underlying(ComponentID::Interpreter)].try_emplace(e);
     return;
   }
 
   template<>
-  void add_component(Entity e, CHealth h)  {
+  void add_component(Entity e, CHealth&& h)  {
     component_manager.health[e] = h;
     e_maps[std::to_underlying(ComponentID::Health)].try_emplace(e);
     return;
   }
 
   template<>
-  void add_component(Entity e, CInput i)  {
+  void add_component(Entity e, CInput&& i)  {
     component_manager.inputs[e] = i;
     e_maps[std::to_underlying(ComponentID::Input)].try_emplace(e);
     return;
   }
 
   template<>
-  void add_component(Entity e, CAttraction i)  {
+  void add_component(Entity e, CAttraction&& i)  {
     component_manager.attractions[e] = i;
     e_maps[std::to_underlying(ComponentID::Attractor)].try_emplace(e);
     return;
   }
 
   template<>
-  void add_component(Entity e, CCollider i)  {
+  void add_component(Entity e, CCollider&& i)  {
     component_manager.colliders[e] = i;
     e_maps[std::to_underlying(ComponentID::Collider)].try_emplace(e);
     return;
@@ -103,8 +104,8 @@ export struct EntityManager {
 
   template<typename T>
   std::vector<Entity> get_associated_entities() noexcept {
-    if constexpr(std::is_same_v<T, CTransform>) {
-      return std::vector<Entity>(e_maps[std::to_underlying(ComponentID::Transform)].begin(), e_maps[std::to_underlying(ComponentID::Transform)].end());
+    if constexpr(std::is_same_v<T, CTransform2D>) {
+      return std::vector<Entity>(e_maps[std::to_underlying(ComponentID::Transform2D)].begin(), e_maps[std::to_underlying(ComponentID::Transform2D)].end());
     }
     else if constexpr(std::is_same_v<T, CVelocity>) {
       return std::vector<Entity>(e_maps[std::to_underlying(ComponentID::Velocity)].begin(), e_maps[std::to_underlying(ComponentID::Velocity)].end());

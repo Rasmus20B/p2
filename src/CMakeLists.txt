@@ -20,6 +20,7 @@ target_sources(game
   p2.cc
   bullets.cc
   config.cc
+  cpuid.cc
   player.cc
   event.cc
   net.cc

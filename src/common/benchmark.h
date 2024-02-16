@@ -11,7 +11,7 @@
   bench_start = std::chrono::high_resolution_clock::now(); \
   f; \
   bench_end = std::chrono::high_resolution_clock::now(); \
-  std::cout <<  name << " Took: " << (bench_end - bench_start).count() << "\n";
+  std::cout <<  name << " Took: " << std::chrono::duration_cast<std::chrono::nanoseconds>(bench_end - bench_start).count() << "\n";
 
 
 static auto bench_start = std::chrono::high_resolution_clock::now();

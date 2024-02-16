@@ -36,7 +36,7 @@ export void handle_player(EntityManager& em, std::vector<BulletMgr>& bm) {
   // Player Shooting
   if (IsKeyDown(KEY_Z)) {
     auto bl = em.create_entity();
-    em.add_component<CTransform>(bl, {
+    em.add_component<CTransform2D>(bl, {
         { 
         component_manager.transforms[1].position.x,
         component_manager.transforms[1].position.y 

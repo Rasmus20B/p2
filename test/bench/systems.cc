@@ -19,22 +19,19 @@ int main() {
   /* INIT */
   World world;
   auto player = world.em.create_entity();
-  world.em.add_component<CTransform>(player, {
+  world.em.add_components<CTransform2D, CVelocity, CHealth, CInput>(player, {
       .position = { 300, 300 },
       .scale = { 10, 10 },
       .rotation = 90
-    });
-  world.em.add_component<CVelocity>(player, {
+    }, {
       .velocity { 0, 0 }
-    });
-  world.em.add_component<CHealth>(player, {
+    }, {
       .health = 3
+    }, {
     });
-  world.em.add_component<CInput>(player, {
-    });
-  for(int i = 0; i < 4000; ++i) {
+  for(int i = 0; i < 5000; ++i) {
     auto other = world.em.create_entity();
-    world.em.add_components<CTransform, CVelocity, CHealth, CAttraction, CCollider>(other, {
+    world.em.add_components<CTransform2D, CVelocity, CHealth, CAttraction, CCollider>(other, {
         .position = { get_rand_float(config.windowDimensions.x ), get_rand_float(config.windowDimensions.y ) },
         .scale = { 3, 3 },
         .rotation = 90
@@ -57,14 +54,14 @@ int main() {
   }
   /* INIT OVER */
 
-  auto t_entities = world.em.get_associated_entities<CTransform>();
+  auto t_entities = world.em.get_associated_entities<CTransform2D>();
   std::vector<Entity> entities(t_entities.begin(), t_entities.end());
   auto t_attractors = world.em.get_associated_entities<CAttraction>();
   std::vector<Entity> a_entities(t_attractors.begin(), t_attractors.end());
-  BENCH(orientToAttractor(a_entities), "orient");
-  BENCH(moveTransformAll(entities), "MOVE");
-  BENCH(checkCollisionsWithSingleEntity(a_entities, 1), "collision");
-  BENCH(checkOutOfBounds(entities), "oob");
+  (orientToAttractor(a_entities));
+  (moveTransformAll(entities));
+  (checkCollisionsWithSingleEntity(a_entities, 1));
+  (checkOutOfBounds(entities));
 
   return 0;
 }

@@ -39,7 +39,7 @@ struct World {
 void render(World &w) {
   BeginDrawing();
   ClearBackground(BLACK);
-  auto t_entities = w.em.get_associated_entities<CTransform>();
+  auto t_entities = w.em.get_associated_entities<CTransform2D>();
 
   for(auto i: t_entities) {
     DrawCircleV(component_manager.transforms[i].position,
@@ -55,7 +55,7 @@ void render(World &w) {
 void tick(World &w) {
   handle_player(w.em, w.live_bullets);
   // Bullet movement
-  auto t_entities = w.em.get_associated_entities<CTransform>();
+  auto t_entities = w.em.get_associated_entities<CTransform2D>();
   std::vector<Entity> entities(t_entities.begin(), t_entities.end());
   auto t_attractors = w.em.get_associated_entities<CAttraction>();
   std::vector<Entity> a_entities(t_attractors.begin(), t_attractors.end());
@@ -80,23 +80,20 @@ export void gameloop() {
   World world;
 
   auto player = world.em.create_entity();
-  world.em.add_component<CTransform>(player, {
+  world.em.add_components<CTransform2D, CVelocity, CHealth, CInput>(player, {
       .position = { 300, 300 },
       .scale = { 10, 10 },
       .rotation = 90
-    });
-  world.em.add_component<CVelocity>(player, {
+    }, {
       .velocity { 0, 0 }
-    });
-  world.em.add_component<CHealth>(player, {
+    }, {
       .health = 3
-    });
-  world.em.add_component<CInput>(player, {
-    });
+    },
+    {});
 
-  for(int i = 0; i < 4000; ++i) {
+  for(int i = 0; i < 2000; ++i) {
     auto other = world.em.create_entity();
-    world.em.add_components<CTransform, CVelocity, CHealth, CAttraction, CCollider>(other, {
+    world.em.add_components<CTransform2D, CVelocity, CHealth, CAttraction, CCollider>(other, {
         .position = { get_rand_float(config.windowDimensions.x ), get_rand_float(config.windowDimensions.y ) },
         .scale = { 3, 3 },
         .rotation = 90

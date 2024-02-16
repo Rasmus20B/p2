@@ -11,7 +11,7 @@ import types;
 export module ecs.component;
 
 export enum class ComponentID {
-  Transform,
+  Transform2D,
   Velocity,
   Collider,
   BulletInfo,
@@ -25,7 +25,7 @@ export enum class ComponentID {
   Size,
 };
 
-export struct CTransform {
+export struct CTransform2D {
   Vector2 position;
   Vector2 scale;
   f32 rotation;
@@ -100,7 +100,7 @@ export struct ComponentManager {
     inputs.resize(100000);
     attractions.resize(100000);
   }
-  std::vector<CTransform> transforms;
+  std::vector<CTransform2D> transforms;
   std::vector<CVelocity> velocities;
   std::vector<CHealth> health;
   std::vector<CSprite> sprites;

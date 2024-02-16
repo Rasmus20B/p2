@@ -21,7 +21,7 @@ import config;
 
 export module ecs.system;
 
-export void moveTransform(CTransform& t, CVelocity& v) {
+export void moveTransform(CTransform2D& t, CVelocity& v) {
   t.position.x += v.velocity.x;
   t.position.y += v.velocity.y;
 }
@@ -37,7 +37,6 @@ export void moveTransformPar(const std::vector<Entity>& es, int t, int nt) {
 }
 
 export void moveTransformAll(const std::vector<Entity>& es) {
-
   for(auto i : es) {
     component_manager.transforms[i].position.x += component_manager.velocities[i].velocity.x;
     component_manager.transforms[i].position.y += component_manager.velocities[i].velocity.y;
@@ -95,7 +94,7 @@ export [[gnu::always_inline]] void orientToAttractorSIMD(const std::vector<Entit
     }
 }
 export [[gnu::always_inline]] void orientToAttractorSIMDQ(const std::vector<Entity>& es) {
-    for(int i = 0; i + 1 < es.size(); i = (i + 4)) {
+    for(int i = 0; i + 1 < es.size(); i += 4) {
       Entity att1 = component_manager.attractions[es[i]].attractor;
       Entity att2 = component_manager.attractions[es[i+1]].attractor;
       Entity att3 = component_manager.attractions[es[i+2]].attractor;
@@ -150,22 +149,16 @@ export [[gnu::always_inline]] void orientToAttractorSIMDQ(const std::vector<Enti
     }
   }
 export void orientToAttractor(const std::vector<Entity>& es) {
-#ifdef __arm64__
-  if(es.size() % 4 == 0) {
-    orientToAttractorSIMDQ(es);
-  } else if(es.size() % 2 == 0) {
-    orientToAttractorSIMD(es);
-  } else {
-#endif
-    for(auto i: es) {
-      const auto att = component_manager.attractions[i].attractor;
-      auto dvec = Vector2Subtract(component_manager.transforms[att].position, component_manager.transforms[i].position);
-      auto val = (dvec.x * dvec.x) + (dvec.y * dvec.y);
-      float dist = sqrtf(val);
-      float cur_power = component_manager.attractions[i].gravity / dist;
-      component_manager.velocities[i].velocity.x = (dvec.x/dist) * cur_power;
-      component_manager.velocities[i].velocity.y = (dvec.y/dist) * cur_power;
-    }
+#pragma clang loop vectorize(enable)
+  for(auto i: es) {
+    __builtin_prefetch(&component_manager.attractions[(2 * i + 1) % component_manager.attractions.size()]);
+    const auto att = component_manager.attractions[i].attractor;
+    auto dvec = Vector2Subtract(component_manager.transforms[att].position, component_manager.transforms[i].position);
+    auto val = (dvec.x * dvec.x) + (dvec.y * dvec.y);
+    float dist = sqrtf(val);
+    float cur_power = component_manager.attractions[i].gravity / dist;
+    component_manager.velocities[i].velocity.x = (dvec.x/dist) * cur_power;
+    component_manager.velocities[i].velocity.y = (dvec.y/dist) * cur_power;
   }
 }
 

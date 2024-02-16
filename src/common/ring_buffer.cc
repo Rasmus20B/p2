@@ -24,6 +24,10 @@ class RingBuffer {
       return (head + 1) % S == tail;
     }
 
+    T front() {
+      return arr[tail];
+    }
+
     bool push(T val) {
       std::scoped_lock l(m);
       if(full()) {
