@@ -2,8 +2,4 @@ module;
 
 export module cpuid;
 
-#ifdef __amd64__
-
-#elif __x86_64__
-
-#endif
+export inline constexpr long long LANE_SIZE = 128;

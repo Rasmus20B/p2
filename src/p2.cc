@@ -59,10 +59,10 @@ void tick(World &w) {
   std::vector<Entity> entities(t_entities.begin(), t_entities.end());
   auto t_attractors = w.em.get_associated_entities<CAttraction>();
   std::vector<Entity> a_entities(t_attractors.begin(), t_attractors.end());
-  BENCH(orientToAttractor(a_entities), "orient");
-  BENCH(moveTransformAll(entities), "MOVE");
-  BENCH(checkCollisionsWithSingleEntity(a_entities, 1), "collision");
-  BENCH(checkOutOfBounds(entities), "oob");
+  (orientToAttractor(a_entities));
+  (moveTransformAll(entities));
+  (checkCollisionsWithSingleEntity(a_entities, 1));
+  (checkOutOfBounds(entities));
 
   removeDeads(w.em);
 }

@@ -55,7 +55,7 @@ int main() {
   }
   /* INIT OVER */
 
-  for(auto i = 0; i < 1000; ++i) {
+  for(auto i = 0; i < 10000; ++i) {
     auto t_entities = world.em.get_associated_entities<CTransform2D>();
     std::vector<Entity> entities(t_entities.begin(), t_entities.end());
     auto t_attractors = world.em.get_associated_entities<CAttraction>();
