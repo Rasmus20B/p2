@@ -5,12 +5,16 @@ module;
 #include <vector>
 #include <ratio>
 #include <chrono>
+#include <sstream>
+#include <fstream>
 #include <iostream>
 #include <algorithm>
 #include <execution>
 #include <ranges>
 
 #include <raylib.h>
+#define RAYGUI_IMPLEMENTATION
+#include "include/raygui.h"
 
 import bullets;
 import player;
@@ -22,7 +26,11 @@ import ecs;
 import config;
 import rand_helper;
 
+import main_menu;
+
 #include "common/benchmark.h"
+
+#include <print>
 
 export module p2;
 
@@ -63,7 +71,8 @@ void tick(World &w) {
   (moveTransformAll(entities));
   (checkCollisionsWithSingleEntity(a_entities, 1));
   (checkOutOfBounds(entities));
-
+  auto t_scripts = w.em.get_associated_entities<CScript>();
+  (scriptSystem(t_scripts));
   removeDeads(w.em);
 }
 
@@ -74,8 +83,12 @@ export void gameloop() {
   SetTargetFPS(60);
 
   config.windowDimensions = { 1080, 768 };
-
   InitWindow(config.windowDimensions.x, config.windowDimensions.y, "p2");
+
+#if 0
+  auto choice = main_menu();
+  if(!choice) return;
+#endif
 
   World world;
 
@@ -91,7 +104,7 @@ export void gameloop() {
     },
     {});
 
-  for(int i = 0; i < 2000; ++i) {
+  for(int i = 0; i < 100; ++i) {
     auto other = world.em.create_entity();
     world.em.add_components<CTransform2D, CVelocity, CHealth, CAttraction, CCollider>(other, {
         .position = { get_rand_float(config.windowDimensions.x ), get_rand_float(config.windowDimensions.y ) },
@@ -114,6 +127,20 @@ export void gameloop() {
         }
       );
   }
+
+  std::string level = "../assets/move.dml";
+  std::ifstream instream(level, std::ios::in | std::ios::binary);
+  std::vector<uint8_t> prog((std::istreambuf_iterator<char>(instream)), std::istreambuf_iterator<char>());
+
+  auto enemy = world.em.create_entity();
+  world.em.add_components<CTransform2D, CHealth, CScript>(enemy, {
+      .position = {0, 0},
+      .scale = { 10, 10 },
+      .rotation = 90
+      }, {
+        .health = 20
+      }, CScript(prog)
+  );
 
   auto event_queue = std::make_shared<RingBuffer<Event, 128>>();
   NetClient nc(event_queue);

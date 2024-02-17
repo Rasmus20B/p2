@@ -5,8 +5,10 @@ module;
 #include <vector>
 #include <variant>
 #include <functional>
+#include <print>
 
 import types;
+import opcodes;
 
 export module ecs.component;
 
@@ -18,7 +20,7 @@ export enum class ComponentID {
   Health,
   Parent,
   Children,
-  Interpreter,
+  Script,
   Input,
   Sprite,
   Attractor,
@@ -55,26 +57,6 @@ export struct CChildren {
   std::vector<Entity> children;
 };
 
-export struct CInterpreter {
-  enum DataType {
-    Integer,
-    Float,
-  };
-  struct StackSlot {
-    void print() {
-      if(type == Integer) {
-        i32 val = std::get<i32>(data);
-      } else if(type == Float) {
-        f32 val = std::get<f32>(data);
-      }
-    }
-    std::variant<i32, f32> data;
-    DataType type;
-  };
-  u16 pc = 0;
-  u16 sp = 0;
-  std::vector<StackSlot> memory;
-};
 
 export struct CSprite {
 
@@ -90,25 +72,104 @@ export struct CAttraction {
   Vector2 cache;
 };
 
+export struct CScript {
+
+  CScript() = default;
+  CScript(CScript const &other) : program(other.program) {
+    init_from_script();
+  };
+  CScript(const std::vector<u8>& code) : program(code) {
+    init_from_script();
+  }
+
+  enum DataType {
+    Integer,
+    Float,
+  };
+
+  struct StackSlot {
+    std::variant<i32, f32> data;
+    DataType type;
+  };
+
+
+  void init_from_script() {
+    constexpr std::array magic = { 0x7f, 0x44, 0x4d, 0x4c };
+    for(int i = 0; i < 4; ++i) {
+      if(magic[i] != program[i]) {
+        std::println("Unrecognized file format.");
+        break;
+      }
+    }
+    std::println("Code: "); 
+    for(auto i: program) {
+      std::print("{}", i);
+    }
+    std::println("");
+    // Set pc to the entry point found in header file
+    pc += (program[4]) & 0x000000FF;
+    pc += (program[5] << 8) & 0x0000FF00;
+    pc += (program[6] << 16) & 0x00FF0000;
+    pc += (program[7] << 24) & 0xFF000000;
+  }
+
+  [[nodiscard]]
+  float get_float_operand() noexcept {
+    std::vector<uint8_t> num_str(program.begin() + pc + 1, program.begin() + pc + 5);
+    float res = 0;
+    memcpy(&res, num_str.data(), 4);
+    return res;
+  }
+
+  [[nodiscard]]
+  int get_int_operand() noexcept {
+    int num = 0;
+    num += program[pc+1] & 0x000000FF;
+    num += (program[pc+2] << 8) & 0x0000FF00;
+    num += (program[pc+3] << 16) & 0x00FF0000;
+    num += (program[pc+4] << 24) & 0xFF000000;
+    return num;
+  }
+
+  OpCode consume_op() {
+    std::println("program size: {}", program.size());
+    int op = program[pc];
+    op = op << 8;
+    pc++;
+    op |= program[pc];
+    auto opcode = static_cast<OpCode>(op);
+    std::println("pc: {}", pc);
+    return opcode;
+  }
+
+  u16 pc = 0;
+  u16 sp = 0;
+  u16 waitctr = 0;
+  std::vector<u8> program;
+  std::vector<StackSlot> memory;
+};
+
 export struct ComponentManager {
   ComponentManager() {
     transforms.resize(100000);
     velocities.resize(100000);
-    colliders.resize(100000);
     health.resize(100000);
     sprites.resize(100000);
     vms.resize(100000);
     inputs.resize(100000);
     attractions.resize(100000);
+    colliders.resize(100000);
+    scripts.resize(100000);
   }
   std::vector<CTransform2D> transforms;
   std::vector<CVelocity> velocities;
   std::vector<CHealth> health;
   std::vector<CSprite> sprites;
-  std::vector<CInterpreter> vms;
+  std::vector<CScript> vms;
   std::vector<CInput> inputs;
   std::vector<CAttraction> attractions;
   std::vector<CCollider> colliders;
+  std::vector<CScript> scripts;
 };
 
 export inline ComponentManager component_manager{};

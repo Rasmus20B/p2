@@ -28,7 +28,7 @@ export struct EntityManager {
       reuse.pop();
       pool.try_emplace(id);
       e_count++;
-     return id;
+      return id;
     } else {
       pool.try_emplace(e_cur);
       e_count++;
@@ -68,9 +68,9 @@ export struct EntityManager {
   }
 
   template<>
-  void add_component(Entity e, CInterpreter&& i)  {
-    component_manager.vms[e] = i;
-    e_maps[std::to_underlying(ComponentID::Interpreter)].try_emplace(e);
+  void add_component(Entity e, CScript&& i)  {
+    component_manager.scripts[e] = i;
+    e_maps[std::to_underlying(ComponentID::Script)].try_emplace(e);
     return;
   }
 
@@ -110,8 +110,8 @@ export struct EntityManager {
     else if constexpr(std::is_same_v<T, CVelocity>) {
       return std::vector<Entity>(e_maps[std::to_underlying(ComponentID::Velocity)].begin(), e_maps[std::to_underlying(ComponentID::Velocity)].end());
     }
-    else if constexpr (std::is_same_v<T, CInterpreter>) {
-      return std::vector<Entity>(e_maps[std::to_underlying(ComponentID::Interpreter)].begin(), e_maps[std::to_underlying(ComponentID::Interpreter)].end());
+    else if constexpr (std::is_same_v<T, CScript>) {
+      return std::vector<Entity>(e_maps[std::to_underlying(ComponentID::Script)].begin(), e_maps[std::to_underlying(ComponentID::Script)].end());
     }
     else if constexpr (std::is_same_v<T, CHealth>) {
       return std::vector<Entity>(e_maps[std::to_underlying(ComponentID::Health)].begin(), e_maps[std::to_underlying(ComponentID::Health)].end());

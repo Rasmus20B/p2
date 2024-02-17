@@ -2,6 +2,8 @@ module;
 
 import ecs.component;
 import ecs.entity;
+
+import opcodes;
 import types;
 import config;
 
@@ -40,8 +42,7 @@ export void moveTransformPar(const std::vector<Entity>& es, int t, int nt) {
 
 export void moveTransformAll(const std::vector<Entity>& es) {
   for(auto i : es) {
-    component_manager.transforms[i].position.x += component_manager.velocities[i].velocity.x;
-    component_manager.transforms[i].position.y += component_manager.velocities[i].velocity.y;
+    component_manager.transforms[i].position = Vector2Add(component_manager.transforms[i].position, component_manager.velocities[i].velocity);
   }
 }
 
@@ -66,9 +67,8 @@ export void orientToAttractor(const std::vector<Entity>& es) {
         attractor_pos.y == component_manager.attractions[i].cache.y) {
       continue;
     }
-    component_manager.attractions[i].cache.x = attractor_pos.x;
-    component_manager.attractions[i].cache.y = attractor_pos.y;
-    auto dvec = Vector2Subtract(attractor_pos, component_manager.transforms[i].position);
+    component_manager.attractions[i].cache = attractor_pos;
+    auto dvec = Vector2Subtract(attractor_pos, entity_pos);
     auto val = (dvec.x * dvec.x) + (dvec.y * dvec.y);
     float dist = sqrtf(val);
     float cur_power = component_manager.attractions[i].gravity / dist;
@@ -95,3 +95,34 @@ export void removeDeads(EntityManager& em) {
   }
 }
 
+export void scriptSystem(std::vector<Entity>& es) {
+  for(auto e: es) {
+    if(component_manager.scripts[e].waitctr > 0) {
+      component_manager.scripts[e].waitctr--;
+    } else {
+      auto op = component_manager.scripts[e].consume_op();
+      switch(op) {
+        case OpCode::WAIT:
+          component_manager.scripts[e].waitctr = component_manager.scripts[e].get_int_operand();
+          component_manager.scripts[e].pc += 5;
+          break;
+        case OpCode::JMP:
+          component_manager.scripts[e].pc = component_manager.scripts[e].get_int_operand();
+          break;
+        case OpCode::MOVEPOS: {
+          auto x = component_manager.scripts[e].get_int_operand();
+          component_manager.scripts[e].pc += 4;
+          auto y = component_manager.scripts[e].get_int_operand();
+          component_manager.scripts[e].pc += 5;
+          component_manager.transforms[e].position = {
+            (float)x,
+            (float)y
+          };
+          break;
+        }
+        default:
+          std::println("Uninplmeneted Opcode.");
+      }
+    }
+  }
+}
