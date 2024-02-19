@@ -101,11 +101,6 @@ export struct CScript {
         break;
       }
     }
-    std::println("Code: "); 
-    for(auto i: program) {
-      std::print("{}", i);
-    }
-    std::println("");
     // Set pc to the entry point found in header file
     pc += (program[4]) & 0x000000FF;
     pc += (program[5] << 8) & 0x0000FF00;
@@ -132,13 +127,11 @@ export struct CScript {
   }
 
   OpCode consume_op() {
-    std::println("program size: {}", program.size());
     int op = program[pc];
     op = op << 8;
     pc++;
     op |= program[pc];
     auto opcode = static_cast<OpCode>(op);
-    std::println("pc: {}", pc);
     return opcode;
   }
 

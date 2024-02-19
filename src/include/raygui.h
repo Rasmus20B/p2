@@ -1,3 +1,5 @@
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+#pragma clang diagnostic ignored "-Wdeprecated-enum-compare-conditional"
 /*******************************************************************************************
 *
 *   raygui v4.1-dev - A simple and easy-to-use immediate-mode gui library

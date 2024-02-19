@@ -13,6 +13,7 @@ import config;
 #include <algorithm>
 #include <functional>
 #include <cassert>
+#include <span>
 
 #include <print>
 
@@ -40,13 +41,13 @@ export void moveTransformPar(const std::vector<Entity>& es, int t, int nt) {
   }
 }
 
-export void moveTransformAll(const std::vector<Entity>& es) {
+export void moveTransformAll(const std::span<Entity> es) {
   for(auto i : es) {
     component_manager.transforms[i].position = Vector2Add(component_manager.transforms[i].position, component_manager.velocities[i].velocity);
   }
 }
 
-export void checkOutOfBounds(const std::vector<Entity>& es) {
+export void checkOutOfBounds(const std::span<Entity> es) {
   for(auto i: es) {
     if(component_manager.transforms[i].position.x < 0 ||
        component_manager.transforms[i].position.y < 0 ||
@@ -57,7 +58,7 @@ export void checkOutOfBounds(const std::vector<Entity>& es) {
   }
 }
 
-export void orientToAttractor(const std::vector<Entity>& es) {
+export void orientToAttractor(const std::span<Entity> es) {
   for(auto i: es) {
     const auto att = component_manager.attractions[i].attractor;
     auto entity_pos = component_manager.transforms[i].position;
@@ -77,7 +78,7 @@ export void orientToAttractor(const std::vector<Entity>& es) {
   }
 }
 
-export void checkCollisionsWithSingleEntity(const std::vector<Entity>& es, const Entity e) {
+export void checkCollisionsWithSingleEntity(const std::span<Entity> es, const Entity e) {
   for(auto i: es) {
     if (CheckCollisionCircles(component_manager.transforms[i].position, component_manager.transforms[i].scale.x,
           component_manager.transforms[e].position, component_manager.transforms[e].scale.x)) {
@@ -95,7 +96,7 @@ export void removeDeads(EntityManager& em) {
   }
 }
 
-export void scriptSystem(std::vector<Entity>& es) {
+export void scriptSystem(std::span<Entity> es) {
   for(auto e: es) {
     if(component_manager.scripts[e].waitctr > 0) {
       component_manager.scripts[e].waitctr--;
