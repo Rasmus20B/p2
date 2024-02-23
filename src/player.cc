@@ -4,7 +4,6 @@ module;
 
 #include <raylib.h>
 
-import bullets;
 import ecs;
 
 #include <iostream>
@@ -16,7 +15,7 @@ export struct Player {
   Vector2 vel{};
 };
 
-export void handle_player(EntityManager& em, std::vector<BulletMgr>& bm) {
+export void handle_player(EntityManager& em) {
   // Player Movement
   if (IsKeyDown(KEY_UP)) {
     component_manager.velocities[1].velocity.y = -0.5f;

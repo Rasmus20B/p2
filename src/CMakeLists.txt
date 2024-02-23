@@ -17,13 +17,13 @@ target_sources(game
   ecs/component.cc
   ecs/components/components.cc
   ecs/components/basic_components.cc
+  ecs/components/bullets.cc
   ecs/components/script/script.cc
   ecs/components/script/opcodes.cc
   ecs/entity.cc
   ecs/system.cc
   ecs/ecs.cc
   p2.cc
-  bullets.cc
   config.cc
   cpuid.cc
   player.cc

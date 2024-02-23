@@ -25,6 +25,8 @@ export enum class ComponentID {
   Input,
   Sprite,
   Attractor,
+  BulletManager,
+  BulletPattern,
   Size,
 };
 
@@ -34,21 +36,21 @@ export struct ComponentManager {
     velocities.resize(100000);
     health.resize(100000);
     sprites.resize(100000);
-    vms.resize(100000);
     inputs.resize(100000);
     attractions.resize(100000);
     colliders.resize(100000);
     scripts.resize(100000);
+    bullets.resize(100000);
   }
   std::vector<CTransform2D> transforms;
   std::vector<CVelocity> velocities;
   std::vector<CHealth> health;
   std::vector<CSprite> sprites;
-  std::vector<CScript> vms;
   std::vector<CInput> inputs;
   std::vector<CAttraction> attractions;
   std::vector<CCollider> colliders;
   std::vector<CScript> scripts;
+  std::vector<CBulletManager> bullets;
 };
 
 export inline ComponentManager component_manager{};

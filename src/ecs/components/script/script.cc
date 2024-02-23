@@ -2,9 +2,11 @@ module;
 
 #include <vector>
 #include <print>
+#include <bitset>
 #include <variant>
 
 import types;
+import ecs.components.bullets;
 
 export module ecs.components.script;
 export import ecs.components.script.opcodes;
@@ -72,9 +74,15 @@ export struct CScript {
     return opcode;
   }
 
+  enum class VMState {
+    MOVING,
+    SIZE
+  };
+
   u16 pc = 0;
   u16 sp = 0;
   u16 waitctr = 0;
+  std::bitset<std::to_underlying(VMState::SIZE)> state;
   std::vector<u8> program;
   std::vector<StackSlot> memory;
 };

@@ -60,9 +60,9 @@ int main() {
     std::vector<Entity> entities(t_entities.begin(), t_entities.end());
     auto t_attractors = world.em.get_associated_entities<CAttraction>();
     std::vector<Entity> a_entities(t_attractors.begin(), t_attractors.end());
-    (systems::orientToAttractor(a_entities));
-    (systems::moveTransformAll(entities));
-    (systems::checkCollisionsWithSingleEntity(a_entities, 1));
+    (systems::orient_to_attractor(a_entities));
+    (systems::move_transform(entities));
+    (systems::check_collisions_with_single_entity(a_entities, 1));
     (systems::remove_out_of_bounds(entities));
   }
   return 0;

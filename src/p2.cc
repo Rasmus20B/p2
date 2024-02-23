@@ -16,8 +16,8 @@ module;
 #define RAYGUI_IMPLEMENTATION
 #include "include/raygui.h"
 
-import bullets;
 import player;
+import ecs;
 import event;
 import ring_buffer;
 import net;
@@ -40,7 +40,6 @@ float dt = 0.f;;
 
 struct World {
   EntityManager em;
-  std::vector<BulletMgr> live_bullets{};
   Player pl;
 };
 
@@ -61,19 +60,19 @@ void render(World &w) {
 }
 
 void tick(World &w) {
-  handle_player(w.em, w.live_bullets);
+  handle_player(w.em);
   // Bullet movement
   auto t_entities = w.em.get_associated_entities<CTransform2D>();
   std::vector<Entity> entities(t_entities.begin(), t_entities.end());
   auto t_attractors = w.em.get_associated_entities<CAttraction>();
   std::vector<Entity> a_entities(t_attractors.begin(), t_attractors.end());
-  systems::orientToAttractor(a_entities);
-  systems::moveTransformAll(entities);
-  systems::checkCollisionsWithSingleEntity(a_entities, 1);
+  systems::orient_to_attractor(a_entities);
+  systems::move_transform(entities);
+  systems::check_collisions_with_single_entity(a_entities, 1);
   systems::remove_out_of_bounds(entities);
   auto t_scripts = w.em.get_associated_entities<CScript>();
-  systems::scriptSystem(t_scripts);
-  systems::removeDeads(w.em);
+  systems::progress_script(t_scripts, w.em);
+  systems::remove_deads(w.em);
 }
 
 export void gameloop() {
