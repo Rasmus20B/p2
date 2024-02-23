@@ -3,6 +3,7 @@ module;
 import types;
 import ring_buffer;
 import sparse_set;
+
 import ecs.component;
 
 #include <unordered_map>

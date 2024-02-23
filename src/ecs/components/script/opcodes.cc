@@ -1,5 +1,7 @@
 module;
-export module opcodes;
+
+
+export module ecs.components.script.opcodes;
 
 export enum class OpCode {
   NOP = 0,

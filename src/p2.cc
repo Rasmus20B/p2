@@ -67,13 +67,13 @@ void tick(World &w) {
   std::vector<Entity> entities(t_entities.begin(), t_entities.end());
   auto t_attractors = w.em.get_associated_entities<CAttraction>();
   std::vector<Entity> a_entities(t_attractors.begin(), t_attractors.end());
-  (orientToAttractor(a_entities));
-  (moveTransformAll(entities));
-  (checkCollisionsWithSingleEntity(a_entities, 1));
-  (checkOutOfBounds(entities));
+  systems::orientToAttractor(a_entities);
+  systems::moveTransformAll(entities);
+  systems::checkCollisionsWithSingleEntity(a_entities, 1);
+  systems::remove_out_of_bounds(entities);
   auto t_scripts = w.em.get_associated_entities<CScript>();
-  (scriptSystem(t_scripts));
-  removeDeads(w.em);
+  systems::scriptSystem(t_scripts);
+  systems::removeDeads(w.em);
 }
 
 export void gameloop() {
