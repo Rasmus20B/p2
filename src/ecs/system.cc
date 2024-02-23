@@ -116,8 +116,8 @@ export void scriptSystem(std::span<Entity> es) {
           auto y = component_manager.scripts[e].get_int_operand();
           component_manager.scripts[e].pc += 5;
           component_manager.transforms[e].position = {
-            (float)x,
-            (float)y
+            static_cast<f32>(x),
+            static_cast<f32>(y)
           };
           break;
         }

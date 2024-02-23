@@ -103,26 +103,9 @@ export struct EntityManager {
   }
 
   template<typename T>
-  std::vector<Entity> get_associated_entities() noexcept {
-    if constexpr(std::is_same_v<T, CTransform2D>) {
-      return std::vector<Entity>(e_maps[std::to_underlying(ComponentID::Transform2D)].begin(), e_maps[std::to_underlying(ComponentID::Transform2D)].end());
-    }
-    else if constexpr(std::is_same_v<T, CVelocity>) {
-      return std::vector<Entity>(e_maps[std::to_underlying(ComponentID::Velocity)].begin(), e_maps[std::to_underlying(ComponentID::Velocity)].end());
-    }
-    else if constexpr (std::is_same_v<T, CScript>) {
-      return std::vector<Entity>(e_maps[std::to_underlying(ComponentID::Script)].begin(), e_maps[std::to_underlying(ComponentID::Script)].end());
-    }
-    else if constexpr (std::is_same_v<T, CHealth>) {
-      return std::vector<Entity>(e_maps[std::to_underlying(ComponentID::Health)].begin(), e_maps[std::to_underlying(ComponentID::Health)].end());
-    }
-    else if constexpr (std::is_same_v<T, CInput>) {
-      return std::vector<Entity>(e_maps[std::to_underlying(ComponentID::Input)].begin(), e_maps[std::to_underlying(ComponentID::Input)].end());
-    }
-    else if constexpr (std::is_same_v<T, CAttraction>) {
-      return std::vector<Entity>(e_maps[std::to_underlying(ComponentID::Attractor)].begin(), e_maps[std::to_underlying(ComponentID::Attractor)].end());
-    }
-    return {};
+  constexpr std::vector<Entity> get_associated_entities() noexcept {
+    auto c_id = get_component_id<T>();
+    return std::vector<Entity>(e_maps[std::to_underlying(c_id)].begin(), e_maps[std::to_underlying(c_id)].end());
   }
 
 

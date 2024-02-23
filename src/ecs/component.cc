@@ -12,6 +12,8 @@ import opcodes;
 
 export module ecs.component;
 
+
+
 export enum class ComponentID {
   Transform2D,
   Velocity,
@@ -166,3 +168,25 @@ export struct ComponentManager {
 };
 
 export inline ComponentManager component_manager{};
+
+export template<typename T>
+consteval ComponentID get_component_id() {
+  if constexpr(std::is_same_v<T, CTransform2D>) {
+    return ComponentID::Transform2D;
+  }
+  else if constexpr(std::is_same_v<T, CVelocity>) {
+    return ComponentID::Velocity;
+  }
+  else if constexpr (std::is_same_v<T, CScript>) {
+    return ComponentID::Script;
+  }
+  else if constexpr (std::is_same_v<T, CHealth>) {
+    return ComponentID::Health;
+  }
+  else if constexpr (std::is_same_v<T, CInput>) {
+    return ComponentID::Input;
+  }
+  else if constexpr (std::is_same_v<T, CAttraction>) {
+    return ComponentID::Attractor;
+  }
+};
