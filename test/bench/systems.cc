@@ -2,7 +2,6 @@
 #include <print>
 
 import ecs;
-import player;
 import types;
 import config;
 import rand_helper;
@@ -11,8 +10,6 @@ import rand_helper;
 
 struct World {
   EntityManager em;
-  // std::vector<BulletMgr> live_bullets{};
-  Player pl;
 };
 
 int main() {

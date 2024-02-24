@@ -26,7 +26,6 @@ target_sources(game
   p2.cc
   config.cc
   cpuid.cc
-  player.cc
   main_menu.cc
   event.cc
   net.cc

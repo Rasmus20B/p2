@@ -36,14 +36,11 @@ export struct CChildren {
   std::vector<Entity> children;
 };
 
-
 export struct CSprite {
-
+  Texture2D sprite;
 };
 
-export struct CInput {
-
-};
+export struct CInput {};
 
 export struct CAttraction {
   Entity attractor;

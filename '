@@ -91,50 +91,12 @@ export namespace systems {
     }
   }
 
-  void handle_inputs(const std::span<Entity> es, EntityManager& em) {
-
-    for(auto e: es) {
-      if (IsKeyDown(KEY_UP)) {
-        component_manager.velocities[e].velocity.y = -0.5f;
-      } else if (IsKeyDown(KEY_DOWN)) {
-        component_manager.velocities[e].velocity.y = 0.5f;
-      } else {
-        component_manager.velocities[e].velocity.y = 0;
-      }
-      if (IsKeyDown(KEY_LEFT)) {
-        component_manager.velocities[e].velocity.x = -0.5f;
-      } else if (IsKeyDown(KEY_RIGHT)) {
-        component_manager.velocities[e].velocity.x = 0.5f;
-      } else {
-        component_manager.velocities[e].velocity.x = 0;
-      }
-
-      // Player Shooting
-      if (IsKeyDown(KEY_Z)) {
-        auto bl = em.create_entity();
-        em.add_component<CTransform2D>(bl, {
-            { 
-            component_manager.transforms[e].position.x,
-            component_manager.transforms[e].position.y 
-            },
-            {
-            20, 40
-            },
-            90});
-        em.add_component<CVelocity>(bl, {
-            { 
-            0, -0.5
-            }
-          });
-      }
-    }
-  }
-
   void remove_deads(EntityManager& em) {
     while(!deads.empty()) {
       auto e = deads.front();
       deads.pop();
       em.delete_entity(e);
+      std::println("entities with input components: {}", em.e_maps[std::to_underlying(ComponentID::Input)].size());
       reuse.push(e);
     }
   }
@@ -208,6 +170,9 @@ export namespace systems {
                     vel.y = std::sin(new_angle) * lspeed * 0.005;
                     auto bullet = em.create_entity();
                     auto sprite = LoadTexture("../assets/orb1.png");
+
+                    std::println("sprite: {}, {}", sprite.width, sprite.height);
+
                     em.add_components<CTransform2D, CVelocity, CSprite>(bullet,
                       {
                         enm,

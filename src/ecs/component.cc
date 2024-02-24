@@ -69,6 +69,9 @@ consteval ComponentID get_component_id() {
   else if constexpr (std::is_same_v<T, CHealth>) {
     return ComponentID::Health;
   }
+  else if constexpr (std::is_same_v<T, CSprite>) {
+    return ComponentID::Sprite;
+  }
   else if constexpr (std::is_same_v<T, CInput>) {
     return ComponentID::Input;
   }

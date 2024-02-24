@@ -83,6 +83,13 @@ export struct EntityManager {
   }
 
   template<>
+  void add_component(Entity e, CSprite&& s)  {
+    component_manager.sprites[e] = s;
+    e_maps[std::to_underlying(ComponentID::Sprite)].try_emplace(e);
+    return;
+  }
+
+  template<>
   void add_component(Entity e, CInput&& i)  {
     component_manager.inputs[e] = i;
     e_maps[std::to_underlying(ComponentID::Input)].try_emplace(e);

@@ -16,7 +16,6 @@ module;
 #define RAYGUI_IMPLEMENTATION
 #include "include/raygui.h"
 
-import player;
 import ecs;
 import event;
 import ring_buffer;
@@ -40,13 +39,13 @@ float dt = 0.f;;
 
 struct World {
   EntityManager em;
-  Player pl;
 };
 
 void render(World &w) {
   BeginDrawing();
   ClearBackground(BLACK);
   auto t_entities = w.em.get_associated_entities<CTransform2D>();
+  auto s_entities = w.em.get_associated_entities<CSprite>();
 
   for(auto i: t_entities) {
     DrawCircleV(component_manager.transforms[i].position,
@@ -54,13 +53,25 @@ void render(World &w) {
       RED);
   };
 
+  for(auto i: s_entities) {
+    DrawTextureV(component_manager.sprites[i].sprite, 
+        {
+          component_manager.transforms[i].position.x - (component_manager.sprites[i].sprite.width * 0.5f), 
+          component_manager.transforms[i].position.y - (component_manager.sprites[i].sprite.height * 0.5f), 
+        },
+        RAYWHITE);
+  }
+
 
   DrawFPS(200, 200);
   EndDrawing();
 }
 
 void tick(World &w) {
-  handle_player(w.em);
+
+  auto p_entities = w.em.get_associated_entities<CInput>();
+  systems::handle_inputs(p_entities, w.em);
+
   // Bullet movement
   auto t_entities = w.em.get_associated_entities<CTransform2D>();
   std::vector<Entity> entities(t_entities.begin(), t_entities.end());
@@ -70,9 +81,9 @@ void tick(World &w) {
   systems::move_transform(entities);
   systems::check_collisions_with_single_entity(a_entities, 1);
   systems::remove_out_of_bounds(entities);
+  systems::remove_deads(w.em);
   auto t_scripts = w.em.get_associated_entities<CScript>();
   systems::progress_script(t_scripts, w.em);
-  systems::remove_deads(w.em);
 }
 
 export void gameloop() {
@@ -126,7 +137,6 @@ export void gameloop() {
         }
       );
   }
-
   std::string level = "../assets/move.dml";
   std::ifstream instream(level, std::ios::in | std::ios::binary);
   std::vector<uint8_t> prog((std::istreambuf_iterator<char>(instream)), std::istreambuf_iterator<char>());
