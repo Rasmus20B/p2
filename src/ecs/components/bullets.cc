@@ -24,9 +24,9 @@ export enum BulletMode {
 };
 
 export struct CBulletPatterns {
-  int cols = 0, rows = 0;
-  float speed{};
-  float angle{};
+  int rows = 0, columns = 0;
+  float speed1{}, speed2{};
+  float angle1{}, angle2{};
   std::bitset<BM_SIZE> modes;
   std::bitset<BPF_SIZE> pflags;
 };

@@ -110,6 +110,8 @@ export namespace systems {
           component_manager.velocities[e].velocity = {0, 0};
         }
 
+        auto player = component_manager.transforms[1].position;
+        auto enm = component_manager.transforms[e].position;
         auto op = component_manager.scripts[e].consume_op();
         switch(op) {
           case OpCode::WAIT:
@@ -152,28 +154,35 @@ export namespace systems {
             component_manager.scripts[e].pc += 5;
             Vector2 vel{};
 
-            if(component_manager.bullets[e].patterns[slot].modes.test(BPF_NORM_AIM)) {
-              auto player = component_manager.transforms[1].position;
-              auto enm = component_manager.transforms[e].position;
+            auto& bp = component_manager.bullets[e].patterns[slot];
+
+            if(bp.modes.test(BPF_NORM_AIM)) {
               auto dvec = Vector2Subtract(player, enm);
               auto aim_angle = std::atan2(dvec.y, dvec.x);
-              vel.x = std::cos(aim_angle) * component_manager.bullets[e].patterns[slot].speed * 0.01;
-              vel.y = std::sin(aim_angle) * component_manager.bullets[e].patterns[slot].speed * 0.01;
-            }
-
-            auto bullet = em.create_entity();
-            em.add_components<CTransform2D, CVelocity>(bullet,
-                {
-                  component_manager.transforms[e].position,
-                  {
-                    5,
-                    5
-                  },
-                  component_manager.bullets[e].patterns[slot].angle,
-                }, {
-                  vel
+              auto even_diff = bp.columns & 1 ? 0 : 0.5;
+              for(auto i = 0; i < bp.rows; ++i) {
+                float lspeed = (bp.speed1 + bp.speed2) + ((bp.speed1 - bp.speed2) / (float(bp.rows) / (i)));
+                for(auto j = 0; j < bp.columns; ++j) {
+                    auto diff = (j + 1) - round(0.5 * bp.columns);
+                    auto new_angle = aim_angle + (diff * bp.angle2) - (even_diff * bp.angle2);
+                    vel.x = std::cos(new_angle) * lspeed * 0.005;
+                    vel.y = std::sin(new_angle) * lspeed * 0.005;
+                    auto bullet = em.create_entity();
+                    em.add_components<CTransform2D, CVelocity>(bullet,
+                      {
+                        enm,
+                        {
+                          5,
+                          5
+                        },
+                        component_manager.bullets[e].patterns[slot].angle1,
+                      }, {
+                        vel
+                      }
+                    );
+                  }
                 }
-            );
+              }
             break;
           }
           case OpCode::ETSPRITE:
@@ -185,30 +194,59 @@ export namespace systems {
           case OpCode::ETANGLE: {
             auto slot = component_manager.scripts[e].get_int_operand();
             component_manager.scripts[e].pc += 4;
-            auto angle = component_manager.scripts[e].get_int_operand();
+            auto angle1 = component_manager.scripts[e].get_int_operand();
             component_manager.scripts[e].pc += 4;
+            auto angle2 = component_manager.scripts[e].get_int_operand();
             component_manager.scripts[e].pc += 5;
-            component_manager.bullets[e].patterns[slot].angle = angle;
+
+            auto& bp = component_manager.bullets[e].patterns[slot];
+            // if(bp.modes.test(std::to_underlying(BulletPFlag::BPF_NORM_AIM))) {
+            //   if(bp.columns & 1) {
+            //     bp.angle1 = angle1 + (-90 - (angle2 * (bp.columns * 0.5f) + 1) + angle2);
+            //     bp.angle2 = angle2;
+            //   } else {
+            //     bp.angle1 = angle1 + (-90 - angle2 * (bp.columns * 0.5f)) + (angle2 / (bp.columns * 0.5f));
+            //     bp.angle2 = angle2;
+            //   }
+            // } else {
+            //
+            // }
+            bp.angle1 = angle1 * (PI / 180);
+            bp.angle2 = angle2 * (PI / 180) ;
             break;
           }
           case OpCode::ETSPEED: {
             auto slot = component_manager.scripts[e].get_int_operand();
             component_manager.scripts[e].pc += 4;
-            auto speed = component_manager.scripts[e].get_int_operand();
+            auto speed1 = component_manager.scripts[e].get_int_operand();
             component_manager.scripts[e].pc += 4;
+            auto speed2 = component_manager.scripts[e].get_int_operand();
             component_manager.scripts[e].pc += 5;
-            component_manager.bullets[e].patterns[slot].speed = speed;
+            auto& bp = component_manager.bullets[e].patterns[slot];
+            component_manager.bullets[e].patterns[slot].speed1 = speed1;
+            component_manager.bullets[e].patterns[slot].speed2 = speed2;
             break;
           }
-          case OpCode::ETCOUNT:
-            break;
+          case OpCode::ETCOUNT: {
+            auto slot = component_manager.scripts[e].get_int_operand();
+            component_manager.scripts[e].pc += 4;
+            auto rows = component_manager.scripts[e].get_int_operand();
+            component_manager.scripts[e].pc += 4;
+            auto columns = component_manager.scripts[e].get_int_operand();
+            component_manager.scripts[e].pc += 5;
 
+            auto& bp = component_manager.bullets[e].patterns[slot];
+            component_manager.bullets[e].patterns[slot].rows = rows;
+            component_manager.bullets[e].patterns[slot].columns = columns;
+            break;
+          }
           case OpCode::ETAIM: {
             auto slot = component_manager.scripts[e].get_int_operand();
             component_manager.scripts[e].pc += 4;
             auto mode = component_manager.scripts[e].get_int_operand();
             component_manager.scripts[e].pc += 5;
 
+            auto& bp = component_manager.bullets[e].patterns[slot];
             component_manager.bullets[e].patterns[slot].modes.reset();
             component_manager.bullets[e].patterns[slot].modes.set(static_cast<BulletPFlag>(mode));
             break;
@@ -235,7 +273,6 @@ export namespace systems {
             auto y = component_manager.scripts[e].get_int_operand();
             component_manager.scripts[e].pc += 5;
 
-            auto pos = component_manager.transforms[e].position;
             auto delta = Vector2Subtract({float(x), float(y)}, component_manager.transforms[e].position);
             component_manager.velocities[e].velocity = {
               .x = (delta.x / time ),
