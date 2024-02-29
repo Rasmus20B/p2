@@ -49,7 +49,7 @@ export struct CScript {
 
   [[nodiscard]]
   float get_float_operand() noexcept {
-    std::vector<uint8_t> num_str(program.begin() + pc + 1, program.begin() + pc + 5);
+    std::vector<u8> num_str(program.begin() + pc + 1, program.begin() + pc + 5);
     float res = 0;
     memcpy(&res, num_str.data(), 4);
     return res;

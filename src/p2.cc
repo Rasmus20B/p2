@@ -62,7 +62,9 @@ void render(World &w) {
         },
         RAYWHITE);
   }
-  DrawFPS(200, 200);
+  DrawFPS(20, 20);
+
+  DrawText(std::to_string(t_entities.size()).append(" Entities.").data(), 20, 40, 20, RAYWHITE);
   EndDrawing();
 }
 
@@ -138,10 +140,8 @@ export void gameloop() {
         }
       );
   }
-  std::string level = "../assets/move.dml";
-  std::ifstream instream(level, std::ios::in | std::ios::binary);
-  std::vector<uint8_t> prog((std::istreambuf_iterator<char>(instream)), std::istreambuf_iterator<char>());
 
+  std::vector<u8> prog = assets.scripts[0];
   auto enemy = world.em.create_entity();
   world.em.add_components<CTransform2D, CHealth, CScript>(enemy, {
       .position = {0, 0},
