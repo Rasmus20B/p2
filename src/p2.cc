@@ -141,7 +141,7 @@ export void gameloop() {
       );
   }
 
-  std::vector<u8> prog = assets.scripts[0];
+  std::vector<u8> prog = assets.scripts[0].data;
   auto enemy = world.em.create_entity();
   world.em.add_components<CTransform2D, CHealth, CScript>(enemy, {
       .position = {0, 0},
@@ -166,6 +166,8 @@ export void gameloop() {
       tick(world);
     }
     render(world);
+
+    assets.check_files();
 
     deltaTime = std::chrono::high_resolution_clock::now() - lastTimePt;
     lastTimePt = std::chrono::high_resolution_clock::now();

@@ -208,7 +208,7 @@ export namespace systems {
                     vel.x = std::cos(new_angle) * lspeed * 0.005;
                     vel.y = std::sin(new_angle) * lspeed * 0.005;
                     auto bullet = em.create_entity();
-                    auto sprite = assets.sprites[0];
+                    auto sprite = assets.get_sprite(0);
                     em.add_components<CTransform2D, CVelocity, CSprite>(bullet,
                       {
                         enm,
@@ -235,7 +235,7 @@ export namespace systems {
                     vel.x = std::cos(new_angle) * lspeed * 0.005;
                     vel.y = std::sin(new_angle) * lspeed * 0.005;
                     auto bullet = em.create_entity();
-                    auto sprite = assets.sprites[0];
+                    auto sprite = assets.get_sprite(0);
                     em.add_components<CTransform2D, CVelocity, CSprite>(bullet,
                       {
                         enm,
