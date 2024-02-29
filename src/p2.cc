@@ -16,6 +16,7 @@ module;
 #define RAYGUI_IMPLEMENTATION
 #include "include/raygui.h"
 
+import asset_manager;
 import ecs;
 import event;
 import ring_buffer;
@@ -99,6 +100,8 @@ export void gameloop() {
 #endif
 
   World world;
+
+  assets.init_asset_manager();
 
   auto player = world.em.create_entity();
   world.em.add_components<CTransform2D, CVelocity, CHealth, CInput>(player, {

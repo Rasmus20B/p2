@@ -6,6 +6,7 @@ import ecs.entity;
 import ecs.component;
 import types;
 import config;
+import asset_manager;
 
 #include <iostream>
 #include <algorithm>
@@ -207,7 +208,7 @@ export namespace systems {
                     vel.x = std::cos(new_angle) * lspeed * 0.005;
                     vel.y = std::sin(new_angle) * lspeed * 0.005;
                     auto bullet = em.create_entity();
-                    auto sprite = LoadTexture("../assets/orb1.png");
+                    auto sprite = assets.sprites[0];
                     em.add_components<CTransform2D, CVelocity, CSprite>(bullet,
                       {
                         enm,
@@ -234,7 +235,7 @@ export namespace systems {
                     vel.x = std::cos(new_angle) * lspeed * 0.005;
                     vel.y = std::sin(new_angle) * lspeed * 0.005;
                     auto bullet = em.create_entity();
-                    auto sprite = LoadTexture("../assets/orb1.png");
+                    auto sprite = assets.sprites[0];
                     em.add_components<CTransform2D, CVelocity, CSprite>(bullet,
                       {
                         enm,

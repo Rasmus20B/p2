@@ -23,6 +23,7 @@ target_sources(game
   ecs/entity.cc
   ecs/system.cc
   ecs/ecs.cc
+  asset_manager.cc
   p2.cc
   config.cc
   cpuid.cc
