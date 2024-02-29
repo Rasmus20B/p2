@@ -61,8 +61,6 @@ void render(World &w) {
         },
         RAYWHITE);
   }
-
-
   DrawFPS(200, 200);
   EndDrawing();
 }

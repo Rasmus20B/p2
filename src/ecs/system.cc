@@ -195,15 +195,42 @@ export namespace systems {
 
             auto& bp = component_manager.bullets[e].patterns[slot];
 
-            if(bp.modes.test(BPF_NORM_AIM)) {
-              auto dvec = Vector2Subtract(player, enm);
-              auto aim_angle = std::atan2(dvec.y, dvec.x);
+            auto dvec = Vector2Subtract(player, enm);
+            auto aim_angle = std::atan2(dvec.y, dvec.x);
+            if(bp.modes.test(BM_NORM_AIM)) {
               auto even_diff = bp.columns & 1 ? 0 : 0.5;
               for(auto i = 0; i < bp.rows; ++i) {
                 float lspeed = (bp.speed1 + bp.speed2) + ((bp.speed1 - bp.speed2) / (float(bp.rows) / (i)));
                 for(auto j = 0; j < bp.columns; ++j) {
                     auto diff = (j + 1) - round(0.5 * bp.columns);
                     auto new_angle = aim_angle + (diff * bp.angle2) - (even_diff * bp.angle2);
+                    vel.x = std::cos(new_angle) * lspeed * 0.005;
+                    vel.y = std::sin(new_angle) * lspeed * 0.005;
+                    auto bullet = em.create_entity();
+                    auto sprite = LoadTexture("../assets/orb1.png");
+                    em.add_components<CTransform2D, CVelocity, CSprite>(bullet,
+                      {
+                        enm,
+                        {
+                          static_cast<float>(sprite.width * 0.5),
+                          static_cast<float>(sprite.height * 0.5)
+                        },
+                        component_manager.bullets[e].patterns[slot].angle1,
+                      }, {
+                        vel
+                      }, {
+                        sprite
+                      }
+                    );
+                  }
+                }
+              } else if(bp.modes.test(BM_CIRC_AIM)) {
+                auto ang_step =  360.f / bp.columns;
+                for(auto i = 0; i < bp.rows; ++i) {
+                  float lspeed = (bp.speed1 + bp.speed2) + ((bp.speed1 - bp.speed2) / (float(bp.rows) / (i)));
+                  for(auto j = 0; j < bp.columns; ++j) {
+                    auto angle_diff = ang_step * j;
+                    auto new_angle = aim_angle + (angle_diff * (PI / 180));
                     vel.x = std::cos(new_angle) * lspeed * 0.005;
                     vel.y = std::sin(new_angle) * lspeed * 0.005;
                     auto bullet = em.create_entity();
@@ -254,8 +281,8 @@ export namespace systems {
             auto speed2 = component_manager.scripts[e].get_int_operand();
             component_manager.scripts[e].pc += 5;
             auto& bp = component_manager.bullets[e].patterns[slot];
-            component_manager.bullets[e].patterns[slot].speed1 = speed1;
-            component_manager.bullets[e].patterns[slot].speed2 = speed2;
+            bp.speed1 = speed1;
+            bp.speed2 = speed2;
             break;
           }
           case OpCode::ETCOUNT: {
@@ -267,8 +294,8 @@ export namespace systems {
             component_manager.scripts[e].pc += 5;
 
             auto& bp = component_manager.bullets[e].patterns[slot];
-            component_manager.bullets[e].patterns[slot].rows = rows;
-            component_manager.bullets[e].patterns[slot].columns = columns;
+            bp.rows = rows;
+            bp.columns = columns;
             break;
           }
           case OpCode::ETAIM: {
@@ -304,7 +331,7 @@ export namespace systems {
             auto y = component_manager.scripts[e].get_int_operand();
             component_manager.scripts[e].pc += 5;
 
-            auto delta = Vector2Subtract({float(x), float(y)}, component_manager.transforms[e].position);
+            auto delta = Vector2Subtract({static_cast<f32>(x), static_cast<f32>(y)}, component_manager.transforms[e].position);
             component_manager.velocities[e].velocity = {
               .x = (delta.x / time ),
               .y = (delta.y / time )

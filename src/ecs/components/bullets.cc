@@ -9,18 +9,18 @@ import types;
 
 export module ecs.components.bullets;
 
-export enum BulletPFlag {
-  BPF_NORM,
-  BPF_NORM_AIM,
-  BPF_CIRC_AIM,
-  BPF_CIRC,
-  BPF_SIZE
+export enum BulletMode {
+  BM_NORM,
+  BM_NORM_AIM,
+  BM_CIRC_AIM,
+  BM_CIRC,
+  BM_SIZE
 };
 
-export enum BulletMode {
-  BM_EN_ATTACK,
-  BM_PL_ATTACK,
-  BM_SIZE
+export enum BulletPFlag {
+  BPF_EN_ATTACK,
+  BPF_PL_ATTACK,
+  BPF_SIZE
 };
 
 export struct CBulletPatterns {
