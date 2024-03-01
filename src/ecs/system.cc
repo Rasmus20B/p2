@@ -85,8 +85,8 @@ export namespace systems {
 
   void check_collisions_with_single_entity(const std::span<Entity> es, const Entity e) {
     for(auto i: es) {
-      if (CheckCollisionCircles(component_manager.transforms[i].position, component_manager.transforms[i].scale.x,
-            component_manager.transforms[e].position, component_manager.transforms[e].scale.x)) {
+      if (CheckCollisionCircles(component_manager.transforms[i].position, component_manager.transforms[i].scale.x * 0.5f,
+            component_manager.transforms[e].position, component_manager.transforms[e].scale.x * 0.5f)) {
         component_manager.colliders[i].callback(i, e);
       }
     }
@@ -196,6 +196,7 @@ export namespace systems {
 
             auto& bp = component_manager.bullets[e].patterns[slot];
 
+            auto sprite = assets.get_sprite(SpriteRef::ORB1);
             auto dvec = Vector2Subtract(player, enm);
             auto aim_angle = std::atan2(dvec.y, dvec.x);
             if(bp.modes.test(BM_NORM_AIM)) {
@@ -208,13 +209,12 @@ export namespace systems {
                     vel.x = std::cos(new_angle) * lspeed * 0.005;
                     vel.y = std::sin(new_angle) * lspeed * 0.005;
                     auto bullet = em.create_entity();
-                    auto sprite = assets.get_sprite(0);
                     em.add_components<CTransform2D, CVelocity, CSprite>(bullet,
                       {
                         enm,
                         {
-                          static_cast<float>(sprite.width * 0.5),
-                          static_cast<float>(sprite.height * 0.5)
+                          static_cast<float>(sprite.width),
+                          static_cast<float>(sprite.height)
                         },
                         component_manager.bullets[e].patterns[slot].angle1,
                       }, {
@@ -235,13 +235,12 @@ export namespace systems {
                     vel.x = std::cos(new_angle) * lspeed * 0.005;
                     vel.y = std::sin(new_angle) * lspeed * 0.005;
                     auto bullet = em.create_entity();
-                    auto sprite = assets.get_sprite(0);
                     em.add_components<CTransform2D, CVelocity, CSprite>(bullet,
                       {
                         enm,
                         {
-                          static_cast<float>(sprite.width * 0.5),
-                          static_cast<float>(sprite.height * 0.5)
+                          static_cast<float>(sprite.width),
+                          static_cast<float>(sprite.height)
                         },
                         component_manager.bullets[e].patterns[slot].angle1,
                       }, {

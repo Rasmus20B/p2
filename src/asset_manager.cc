@@ -1,5 +1,6 @@
 module;
 
+#include <utility>
 #include <filesystem>
 #include <fstream>
 #include <print>
@@ -12,7 +13,16 @@ import types;
 
 export module asset_manager;
 
-export struct Asset_Manager {
+export enum class SpriteRef {
+  PLAYER1,
+  ORB1,
+  ORB2,
+  ENM1,
+  DROP1,
+};
+
+struct Asset_Manager {
+
 
   template<typename T>
   struct Asset {
@@ -43,7 +53,7 @@ export struct Asset_Manager {
     }
   }
 
-  void check_files() {
+  void update_files() {
     for(auto &s: sprites) {
       auto handle = std::filesystem::directory_entry(s.path);
       if(handle.exists() && s.ftime < handle.last_write_time()) {
@@ -53,10 +63,9 @@ export struct Asset_Manager {
     }
   }
 
-  Texture2D get_sprite(size_t idx) {
-    return sprites[idx].data;
+  Texture2D get_sprite(SpriteRef idx) {
+    return sprites[std::to_underlying(idx)].data;
   }
-  
 
   std::vector<Asset<Texture2D>> sprites;
   std::vector<Asset<std::vector<u8>>> scripts;

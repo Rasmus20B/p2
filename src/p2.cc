@@ -1,18 +1,7 @@
 module;
 
-#include <thread>
-#include <system_error>
-#include <vector>
-#include <ratio>
-#include <chrono>
-#include <sstream>
-#include <fstream>
-#include <iostream>
-#include <algorithm>
-#include <execution>
-#include <ranges>
-
 #include <raylib.h>
+#include <raymath.h>
 #define RAYGUI_IMPLEMENTATION
 #include "include/raygui.h"
 
@@ -48,20 +37,22 @@ void render(World &w) {
   auto t_entities = w.em.get_associated_entities<CTransform2D>();
   auto s_entities = w.em.get_associated_entities<CSprite>();
 
-  for(auto i: t_entities) {
-    DrawCircleV(component_manager.transforms[i].position,
-      component_manager.transforms[i].scale.x, 
-      RED);
-  };
-
   for(auto i: s_entities) {
     DrawTextureV(component_manager.sprites[i].sprite, 
         {
-          component_manager.transforms[i].position.x - (component_manager.sprites[i].sprite.width * 0.5f), 
-          component_manager.transforms[i].position.y - (component_manager.sprites[i].sprite.height * 0.5f), 
+          component_manager.transforms[i].position.x - (component_manager.transforms[i].scale.x * 0.5f),
+          component_manager.transforms[i].position.y - (component_manager.transforms[i].scale.y * 0.5f),
         },
         RAYWHITE);
+    DrawCircleV(
+        {
+        .x = component_manager.transforms[i].position.x ,
+        .y = component_manager.transforms[i].position.y
+        },
+        component_manager.transforms[i].scale.x * 0.5f,
+        RED);
   }
+
   DrawFPS(20, 20);
 
   DrawText(std::to_string(t_entities.size()).append(" Entities.").data(), 20, 40, 20, RAYWHITE);
@@ -105,23 +96,27 @@ export void gameloop() {
 
   assets.init_asset_manager();
 
+  auto p_sprite = assets.get_sprite(SpriteRef::PLAYER1);
   auto player = world.em.create_entity();
-  world.em.add_components<CTransform2D, CVelocity, CHealth, CInput>(player, {
+  world.em.add_components<CTransform2D, CVelocity, CHealth, CInput, CSprite>(player, {
       .position = { 300, 300 },
-      .scale = { 10, 10 },
+      .scale = { static_cast<float>(p_sprite.width ), static_cast<float>(p_sprite.height ) },
       .rotation = 90
     }, {
       .velocity { 0, 0 }
     }, {
       .health = 3
-    },
-    {});
+    }, {}, {
+      .sprite = p_sprite
+    }
+    );
 
+  auto drop_sprite = assets.get_sprite(SpriteRef::DROP1);
   for(int i = 0; i < 100; ++i) {
     auto other = world.em.create_entity();
-    world.em.add_components<CTransform2D, CVelocity, CHealth, CAttraction, CCollider>(other, {
+    world.em.add_components<CTransform2D, CVelocity, CHealth, CAttraction, CCollider, CSprite>(other, {
         .position = { get_rand_float(config.windowDimensions.x ), get_rand_float(config.windowDimensions.y ) },
-        .scale = { 3, 3 },
+        .scale = { static_cast<float>(drop_sprite.width), static_cast<float>(drop_sprite.height) },
         .rotation = 90
         }, {
         .velocity { get_rand_float(0.04, -0.04), get_rand_float(0.04, -0.04) },
@@ -137,19 +132,24 @@ export void gameloop() {
             component_manager.transforms[b].scale.y += 0.005;
             }
           }
+        }, {
+          .sprite = drop_sprite
         }
       );
   }
 
   std::vector<u8> prog = assets.scripts[0].data;
+  auto enm_sprite = assets.get_sprite(SpriteRef::ENM1);
   auto enemy = world.em.create_entity();
-  world.em.add_components<CTransform2D, CHealth, CScript>(enemy, {
+  world.em.add_components<CTransform2D, CHealth, CScript, CSprite>(enemy, {
       .position = {0, 0},
-      .scale = { 10, 10 },
+      .scale = { static_cast<float>(enm_sprite.width ), static_cast<float>(enm_sprite.height ) },
       .rotation = 90
       }, {
         .health = 20
-      }, CScript(prog)
+      }, CScript(prog), {
+        .sprite = enm_sprite
+      }
   );
 
   auto event_queue = std::make_shared<RingBuffer<Event, 128>>();
@@ -165,9 +165,11 @@ export void gameloop() {
     for(; currentSlice >= SLICE; currentSlice -= SLICE) {
       tick(world);
     }
-    render(world);
 
-    assets.check_files();
+    /* Update assets once per frame. No need to do it a bunch. */
+    assets.update_files();
+
+    render(world);
 
     deltaTime = std::chrono::high_resolution_clock::now() - lastTimePt;
     lastTimePt = std::chrono::high_resolution_clock::now();

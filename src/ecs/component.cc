@@ -32,15 +32,15 @@ export enum class ComponentID {
 
 export struct ComponentManager {
   ComponentManager() {
-    transforms.resize(100000);
-    velocities.resize(100000);
-    health.resize(100000);
-    sprites.resize(100000);
-    inputs.resize(100000);
-    attractions.resize(100000);
-    colliders.resize(100000);
-    scripts.resize(100000);
-    bullets.resize(100000);
+    transforms.resize(10000);
+    velocities.resize(10000);
+    health.resize(10000);
+    sprites.resize(10000);
+    inputs.resize(10000);
+    attractions.resize(10000);
+    colliders.resize(10000);
+    scripts.resize(10000);
+    bullets.resize(10000);
   }
   std::vector<CTransform2D> transforms;
   std::vector<CVelocity> velocities;

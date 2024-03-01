@@ -116,7 +116,6 @@ export struct EntityManager {
     return std::vector<Entity>(e_maps[std::to_underlying(c_id)].begin(), e_maps[std::to_underlying(c_id)].end());
   }
 
-
   pool_type pool;
   usize e_count = 1;
   usize e_cur = 1;
