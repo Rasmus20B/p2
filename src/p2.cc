@@ -38,19 +38,19 @@ void render(World &w) {
   auto s_entities = w.em.get_associated_entities<CSprite>();
 
   for(auto i: s_entities) {
-    DrawTextureV(component_manager.sprites[i].sprite, 
+    DrawTextureV(*component_manager.sprites[i].sprite, 
         {
           component_manager.transforms[i].position.x - (component_manager.transforms[i].scale.x * 0.5f),
           component_manager.transforms[i].position.y - (component_manager.transforms[i].scale.y * 0.5f),
         },
         RAYWHITE);
-    DrawCircleV(
-        {
-        .x = component_manager.transforms[i].position.x ,
-        .y = component_manager.transforms[i].position.y
-        },
-        component_manager.transforms[i].scale.x * 0.5f,
-        RED);
+    // DrawCircleV(
+    //     {
+    //     .x = component_manager.transforms[i].position.x ,
+    //     .y = component_manager.transforms[i].position.y
+    //     },
+    //     component_manager.transforms[i].scale.x * 0.5f,
+    //     RED);
   }
 
   DrawFPS(20, 20);
@@ -87,7 +87,7 @@ export void gameloop() {
   config.windowDimensions = { 1080, 768 };
   InitWindow(config.windowDimensions.x, config.windowDimensions.y, "p2");
 
-#if 0
+#if 1
   auto choice = main_menu();
   if(!choice) return;
 #endif
@@ -100,13 +100,14 @@ export void gameloop() {
   auto player = world.em.create_entity();
   world.em.add_components<CTransform2D, CVelocity, CHealth, CInput, CSprite>(player, {
       .position = { 300, 300 },
-      .scale = { static_cast<float>(p_sprite.width ), static_cast<float>(p_sprite.height ) },
+      .scale = { static_cast<float>(p_sprite->width ), static_cast<float>(p_sprite->height ) },
       .rotation = 90
     }, {
       .velocity { 0, 0 }
     }, {
       .health = 3
-    }, {}, {
+    }, 
+    {}, {
       .sprite = p_sprite
     }
     );
@@ -116,7 +117,7 @@ export void gameloop() {
     auto other = world.em.create_entity();
     world.em.add_components<CTransform2D, CVelocity, CHealth, CAttraction, CCollider, CSprite>(other, {
         .position = { get_rand_float(config.windowDimensions.x ), get_rand_float(config.windowDimensions.y ) },
-        .scale = { static_cast<float>(drop_sprite.width), static_cast<float>(drop_sprite.height) },
+        .scale = { static_cast<float>(drop_sprite->width), static_cast<float>(drop_sprite->height) },
         .rotation = 90
         }, {
         .velocity { get_rand_float(0.04, -0.04), get_rand_float(0.04, -0.04) },
@@ -138,12 +139,12 @@ export void gameloop() {
       );
   }
 
-  std::vector<u8> prog = assets.scripts[0].data;
+  std::vector<u8> prog = *assets.scripts[0].data;
   auto enm_sprite = assets.get_sprite(SpriteRef::ENM1);
   auto enemy = world.em.create_entity();
   world.em.add_components<CTransform2D, CHealth, CScript, CSprite>(enemy, {
       .position = {0, 0},
-      .scale = { static_cast<float>(enm_sprite.width ), static_cast<float>(enm_sprite.height ) },
+      .scale = { static_cast<float>(enm_sprite->width ), static_cast<float>(enm_sprite->height ) },
       .rotation = 90
       }, {
         .health = 20
@@ -177,7 +178,5 @@ export void gameloop() {
     int ft = std::chrono::duration_cast<std::chrono::duration<float, std::milli>>(deltaTime).count();
     lastFrameTime = ft;
   }
-
   CloseWindow();
-  return;
 }

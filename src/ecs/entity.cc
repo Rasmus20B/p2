@@ -112,8 +112,8 @@ export struct EntityManager {
 
   template<typename T>
   constexpr std::vector<Entity> get_associated_entities() noexcept {
-    auto c_id = get_component_id<T>();
-    return std::vector<Entity>(e_maps[std::to_underlying(c_id)].begin(), e_maps[std::to_underlying(c_id)].end());
+    auto c_id = std::to_underlying(get_component_id<T>());
+    return std::vector<Entity>(e_maps[c_id].begin(), e_maps[c_id].end());
   }
 
   pool_type pool;

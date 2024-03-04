@@ -145,11 +145,9 @@ export namespace systems {
       if(component_manager.scripts[e].waitctr > 0) {
         component_manager.scripts[e].waitctr--;
       } else {
-
         if(component_manager.scripts[e].state.test(std::to_underlying(CScript::VMState::MOVING))) {
           component_manager.velocities[e].velocity = {0, 0};
         }
-
         auto player = component_manager.transforms[1].position;
         auto enm = component_manager.transforms[e].position;
         auto op = component_manager.scripts[e].consume_op();
@@ -213,8 +211,8 @@ export namespace systems {
                       {
                         enm,
                         {
-                          static_cast<float>(sprite.width),
-                          static_cast<float>(sprite.height)
+                          static_cast<float>(sprite->width),
+                          static_cast<float>(sprite->height)
                         },
                         component_manager.bullets[e].patterns[slot].angle1,
                       }, {
@@ -239,8 +237,8 @@ export namespace systems {
                       {
                         enm,
                         {
-                          static_cast<float>(sprite.width),
-                          static_cast<float>(sprite.height)
+                          static_cast<float>(sprite->width),
+                          static_cast<float>(sprite->height)
                         },
                         component_manager.bullets[e].patterns[slot].angle1,
                       }, {
@@ -270,7 +268,7 @@ export namespace systems {
 
             auto& bp = component_manager.bullets[e].patterns[slot];
             bp.angle1 = angle1 * (PI / 180);
-            bp.angle2 = angle2 * (PI / 180) ;
+            bp.angle2 = angle2 * (PI / 180);
             break;
           }
           case OpCode::ETSPEED: {
@@ -341,7 +339,7 @@ export namespace systems {
             break;
           }
           default:
-            std::println("Uninplmeneted Opcode. {:x}", std::to_underlying(op));
+            std::println("Unimplmented Opcode. {:x}", std::to_underlying(op));
         }
       }
     }

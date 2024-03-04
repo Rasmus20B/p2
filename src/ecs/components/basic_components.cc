@@ -20,10 +20,6 @@ export struct CCollider {
   std::function<void(Entity self, Entity collided)> callback;
 };
 
-export struct CBulletInfo {
-
-};
-
 export struct CHealth {
   i32 health;
 };
@@ -37,7 +33,7 @@ export struct CChildren {
 };
 
 export struct CSprite {
-  Texture2D sprite;
+  std::shared_ptr<Texture2D> sprite;
 };
 
 export struct CInput {};
