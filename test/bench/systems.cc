@@ -43,8 +43,8 @@ int main() {
         }, {
           .callback { [=](const auto a, const auto b) {
             deads.push(a);
-            component_manager.transforms[b].scale.x += 0.005;
-            component_manager.transforms[b].scale.y += 0.005;
+            component_manager.get<CTransform2D>(b).scale.x += 0.005;
+            component_manager.get<CTransform2D>(b).scale.y += 0.005;
             }
           }
         }

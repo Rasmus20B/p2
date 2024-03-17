@@ -5,6 +5,8 @@ module;
 #define RAYGUI_IMPLEMENTATION
 #include "include/raygui.h"
 
+#include <typeinfo>
+
 import asset_manager;
 import ecs;
 import event;
@@ -38,10 +40,11 @@ void render(World &w) {
   auto s_entities = w.em.get_associated_entities<CSprite>();
 
   for(auto i: s_entities) {
-    DrawTextureV(*component_manager.sprites[i].sprite, 
+    const auto& transform = component_manager.get<CTransform2D>(i);
+    DrawTextureV(*component_manager.get<CSprite>(i).sprite, 
         {
-          component_manager.transforms[i].position.x - (component_manager.transforms[i].scale.x * 0.5f),
-          component_manager.transforms[i].position.y - (component_manager.transforms[i].scale.y * 0.5f),
+          transform.position.x - (transform.scale.x * 0.5f),
+          transform.position.y - (transform.scale.y * 0.5f),
         },
         RAYWHITE);
     // DrawCircleV(
@@ -87,7 +90,7 @@ export void gameloop() {
   config.windowDimensions = { 1080, 768 };
   InitWindow(config.windowDimensions.x, config.windowDimensions.y, "p2");
 
-#if 1
+#if 0
   auto choice = main_menu();
   if(!choice) return;
 #endif
@@ -129,8 +132,8 @@ export void gameloop() {
         }, {
           .callback { [=](const auto a, const auto b) {
             deads.push(a);
-            component_manager.transforms[b].scale.x += 0.005;
-            component_manager.transforms[b].scale.y += 0.005;
+            component_manager.get<CTransform2D>(b).scale.x += 0.005;
+            component_manager.get<CTransform2D>(b).scale.y += 0.005;
             }
           }
         }, {
@@ -153,7 +156,7 @@ export void gameloop() {
       }
   );
 
-  auto event_queue = std::make_shared<RingBuffer<Event, 128>>();
+  auto event_queue = std::make_shared<RingBufferMP<Event, 128>>();
   NetClient nc(event_queue);
 
   float currentSlice = 0.f;

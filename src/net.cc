@@ -13,7 +13,7 @@ using asio::ip::udp;
 
 export class NetClient {
   public:
-  NetClient(std::shared_ptr<RingBuffer<Event, 128>> eq) : socket(udp::socket(ctx)), resolver(ctx) {
+  NetClient(std::shared_ptr<RingBufferMP<Event, 128>> eq) : socket(udp::socket(ctx)), resolver(ctx) {
     events = eq;
   };
   ~NetClient() {
@@ -49,7 +49,7 @@ export class NetClient {
   udp::resolver resolver;
   udp::endpoint endpoint;
   std::thread receiver;
-  std::shared_ptr<RingBuffer<Event, 128>> events;
+  std::shared_ptr<RingBufferMP<Event, 128>> events;
   bool finish = false;
 };
 

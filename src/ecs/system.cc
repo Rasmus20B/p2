@@ -8,7 +8,6 @@ import types;
 import config;
 import asset_manager;
 
-#include <iostream>
 #include <algorithm>
 #include <unordered_set>
 #include <algorithm>
@@ -41,23 +40,23 @@ export namespace systems {
     size_t end = i + (es.size() / nt);
 
     for(; i < end; i++) {
-      component_manager.transforms[es[i]].position.x += component_manager.velocities[es[i]].velocity.x;
-      component_manager.transforms[es[i]].position.y += component_manager.velocities[es[i]].velocity.y;
+      component_manager.get<CTransform2D>(es[i]).position.x += component_manager.get<CVelocity>(es[i]).velocity.x;
+      component_manager.get<CTransform2D>(es[i]).position.y += component_manager.get<CVelocity>(es[i]).velocity.y;
     }
   }
 
   void move_transform(const std::span<Entity> es) {
     for(auto i : es) {
-      component_manager.transforms[i].position = Vector2Add(component_manager.transforms[i].position, component_manager.velocities[i].velocity);
+      component_manager.get<CTransform2D>(i).position = Vector2Add(component_manager.get<CTransform2D>(i).position, component_manager.get<CVelocity>(i).velocity);
     }
   }
 
   void remove_out_of_bounds(const std::span<Entity> es) {
     for(auto i: es) {
-      if(component_manager.transforms[i].position.x < 0 ||
-         component_manager.transforms[i].position.y < 0 ||
-         component_manager.transforms[i].position.x > config.windowDimensions.x ||
-         component_manager.transforms[i].position.y > config.windowDimensions.y) {
+      if(component_manager.get<CTransform2D>(i).position.x < 0 ||
+         component_manager.get<CTransform2D>(i).position.y < 0 ||
+         component_manager.get<CTransform2D>(i).position.x > config.windowDimensions.x ||
+         component_manager.get<CTransform2D>(i).position.y > config.windowDimensions.y) {
         deads.push(i);
       }
     }
@@ -65,29 +64,29 @@ export namespace systems {
 
   void orient_to_attractor(const std::span<Entity> es) {
     for(auto i: es) {
-      const auto att = component_manager.attractions[i].attractor;
-      auto entity_pos = component_manager.transforms[i].position;
-      auto attractor_pos = component_manager.transforms[att].position;
+      const auto att = component_manager.get<CAttraction>(i).attractor;
+      auto entity_pos = component_manager.get<CTransform2D>(i).position;
+      auto attractor_pos = component_manager.get<CTransform2D>(att).position;
 
-      if(attractor_pos.x == component_manager.attractions[i].cache.x &&
-          attractor_pos.y == component_manager.attractions[i].cache.y) {
+      if(attractor_pos.x == component_manager.get<CAttraction>(i).cache.x &&
+          attractor_pos.y == component_manager.get<CAttraction>(i).cache.y) {
         continue;
       }
-      component_manager.attractions[i].cache = attractor_pos;
+      component_manager.get<CAttraction>(i).cache = attractor_pos;
       auto dvec = Vector2Subtract(attractor_pos, entity_pos);
       auto val = (dvec.x * dvec.x) + (dvec.y * dvec.y);
       float dist = sqrtf(val);
-      float cur_power = component_manager.attractions[i].gravity / dist;
-      component_manager.velocities[i].velocity.x = (dvec.x/dist) * cur_power;
-      component_manager.velocities[i].velocity.y = (dvec.y/dist) * cur_power;
+      float cur_power = component_manager.get<CAttraction>(i).gravity / dist;
+      component_manager.get<CVelocity>(i).velocity.x = (dvec.x/dist) * cur_power;
+      component_manager.get<CVelocity>(i).velocity.y = (dvec.y/dist) * cur_power;
     }
   }
 
   void check_collisions_with_single_entity(const std::span<Entity> es, const Entity e) {
     for(auto i: es) {
-      if (CheckCollisionCircles(component_manager.transforms[i].position, component_manager.transforms[i].scale.x * 0.5f,
-            component_manager.transforms[e].position, component_manager.transforms[e].scale.x * 0.5f)) {
-        component_manager.colliders[i].callback(i, e);
+      if (CheckCollisionCircles(component_manager.get<CTransform2D>(i).position, component_manager.get<CTransform2D>(i).scale.x * 0.5f,
+            component_manager.get<CTransform2D>(e).position, component_manager.get<CTransform2D>(e).scale.x * 0.5f)) {
+        component_manager.get<CCollider>(i).callback(i, e);
       }
     }
   }
@@ -96,18 +95,18 @@ export namespace systems {
 
     for(auto e: es) {
       if (IsKeyDown(KEY_UP)) {
-        component_manager.velocities[e].velocity.y = -0.5f;
+        component_manager.get<CVelocity>(e).velocity.y = -0.5f;
       } else if (IsKeyDown(KEY_DOWN)) {
-        component_manager.velocities[e].velocity.y = 0.5f;
+        component_manager.get<CVelocity>(e).velocity.y = 0.5f;
       } else {
-        component_manager.velocities[e].velocity.y = 0;
+        component_manager.get<CVelocity>(e).velocity.y = 0;
       }
       if (IsKeyDown(KEY_LEFT)) {
-        component_manager.velocities[e].velocity.x = -0.5f;
+        component_manager.get<CVelocity>(e).velocity.x = -0.5f;
       } else if (IsKeyDown(KEY_RIGHT)) {
-        component_manager.velocities[e].velocity.x = 0.5f;
+        component_manager.get<CVelocity>(e).velocity.x = 0.5f;
       } else {
-        component_manager.velocities[e].velocity.x = 0;
+        component_manager.get<CVelocity>(e).velocity.x = 0;
       }
 
       // Player Shooting
@@ -115,8 +114,8 @@ export namespace systems {
         auto bl = em.create_entity();
         em.add_component<CTransform2D>(bl, {
             { 
-            component_manager.transforms[e].position.x,
-            component_manager.transforms[e].position.y 
+            component_manager.get<CTransform2D>(e).position.x,
+            component_manager.get<CTransform2D>(e).position.y 
             },
             {
             20, 40
@@ -142,26 +141,26 @@ export namespace systems {
 
   void progress_script(std::span<Entity> es, EntityManager& em) {
     for(auto e: es) {
-      if(component_manager.scripts[e].waitctr > 0) {
-        component_manager.scripts[e].waitctr--;
+      if(component_manager.get<CScript>(e).waitctr > 0) {
+        component_manager.get<CScript>(e).waitctr--;
       } else {
-        if(component_manager.scripts[e].state.test(std::to_underlying(CScript::VMState::MOVING))) {
-          component_manager.velocities[e].velocity = {0, 0};
+        if(component_manager.get<CScript>(e).state.test(std::to_underlying(CScript::VMState::MOVING))) {
+          component_manager.get<CVelocity>(e).velocity = {0, 0};
         }
-        auto player = component_manager.transforms[1].position;
-        auto enm = component_manager.transforms[e].position;
-        auto op = component_manager.scripts[e].consume_op();
+        auto player = component_manager.get<CTransform2D>(1).position;
+        auto enm = component_manager.get<CTransform2D>(e).position;
+        auto op = component_manager.get<CScript>(e).consume_op();
         switch(op) {
           case OpCode::WAIT:
-            component_manager.scripts[e].waitctr = component_manager.scripts[e].get_int_operand();
-            component_manager.scripts[e].pc += 5;
+            component_manager.get<CScript>(e).waitctr = component_manager.get<CScript>(e).get_int_operand();
+            component_manager.get<CScript>(e).pc += 5;
             break;
 
           case OpCode::CALL:
             break;
 
           case OpCode::JMP:
-            component_manager.scripts[e].pc = component_manager.scripts[e].get_int_operand();
+            component_manager.get<CScript>(e).pc = component_manager.get<CScript>(e).get_int_operand();
             break;
 
           case OpCode::JMPEQ:
@@ -181,18 +180,18 @@ export namespace systems {
 
 
           case OpCode::ETNEW: {
-            auto slot = component_manager.scripts[e].get_int_operand();
-            component_manager.scripts[e].pc += 5;
+            auto slot = component_manager.get<CScript>(e).get_int_operand();
+            component_manager.get<CScript>(e).pc += 5;
             assert(slot < 16);
-            new(&component_manager.bullets[e].patterns[slot]) CBulletManager();
+            new(&component_manager.get<CBulletManager>(e).patterns[slot]) CBulletManager();
             break;
           }
           case OpCode::ETON: {
-            auto slot = component_manager.scripts[e].get_int_operand();
-            component_manager.scripts[e].pc += 5;
+            auto slot = component_manager.get<CScript>(e).get_int_operand();
+            component_manager.get<CScript>(e).pc += 5;
             Vector2 vel{};
 
-            auto& bp = component_manager.bullets[e].patterns[slot];
+            auto& bp = component_manager.get<CBulletManager>(e).patterns[slot];
 
             auto sprite = assets.get_sprite(SpriteRef::ORB1);
             auto dvec = Vector2Subtract(player, enm);
@@ -214,7 +213,7 @@ export namespace systems {
                           static_cast<float>(sprite->width),
                           static_cast<float>(sprite->height)
                         },
-                        component_manager.bullets[e].patterns[slot].angle1,
+                        component_manager.get<CBulletManager>(e).patterns[slot].angle1,
                       }, {
                         vel
                       }, {
@@ -240,7 +239,7 @@ export namespace systems {
                           static_cast<float>(sprite->width),
                           static_cast<float>(sprite->height)
                         },
-                        component_manager.bullets[e].patterns[slot].angle1,
+                        component_manager.get<CBulletManager>(e).patterns[slot].angle1,
                       }, {
                         vel
                       }, {
@@ -259,60 +258,60 @@ export namespace systems {
             break;
 
           case OpCode::ETANGLE: {
-            auto slot = component_manager.scripts[e].get_int_operand();
-            component_manager.scripts[e].pc += 4;
-            auto angle1 = component_manager.scripts[e].get_int_operand();
-            component_manager.scripts[e].pc += 4;
-            auto angle2 = component_manager.scripts[e].get_int_operand();
-            component_manager.scripts[e].pc += 5;
+            auto slot = component_manager.get<CScript>(e).get_int_operand();
+            component_manager.get<CScript>(e).pc += 4;
+            auto angle1 = component_manager.get<CScript>(e).get_int_operand();
+            component_manager.get<CScript>(e).pc += 4;
+            auto angle2 = component_manager.get<CScript>(e).get_int_operand();
+            component_manager.get<CScript>(e).pc += 5;
 
-            auto& bp = component_manager.bullets[e].patterns[slot];
+            auto& bp = component_manager.get<CBulletManager>(e).patterns[slot];
             bp.angle1 = angle1 * (PI / 180);
             bp.angle2 = angle2 * (PI / 180);
             break;
           }
           case OpCode::ETSPEED: {
-            auto slot = component_manager.scripts[e].get_int_operand();
-            component_manager.scripts[e].pc += 4;
-            auto speed1 = component_manager.scripts[e].get_int_operand();
-            component_manager.scripts[e].pc += 4;
-            auto speed2 = component_manager.scripts[e].get_int_operand();
-            component_manager.scripts[e].pc += 5;
-            auto& bp = component_manager.bullets[e].patterns[slot];
+            auto slot = component_manager.get<CScript>(e).get_int_operand();
+            component_manager.get<CScript>(e).pc += 4;
+            auto speed1 = component_manager.get<CScript>(e).get_int_operand();
+            component_manager.get<CScript>(e).pc += 4;
+            auto speed2 = component_manager.get<CScript>(e).get_int_operand();
+            component_manager.get<CScript>(e).pc += 5;
+            auto& bp = component_manager.get<CBulletManager>(e).patterns[slot];
             bp.speed1 = speed1;
             bp.speed2 = speed2;
             break;
           }
           case OpCode::ETCOUNT: {
-            auto slot = component_manager.scripts[e].get_int_operand();
-            component_manager.scripts[e].pc += 4;
-            auto rows = component_manager.scripts[e].get_int_operand();
-            component_manager.scripts[e].pc += 4;
-            auto columns = component_manager.scripts[e].get_int_operand();
-            component_manager.scripts[e].pc += 5;
+            auto slot = component_manager.get<CScript>(e).get_int_operand();
+            component_manager.get<CScript>(e).pc += 4;
+            auto rows = component_manager.get<CScript>(e).get_int_operand();
+            component_manager.get<CScript>(e).pc += 4;
+            auto columns = component_manager.get<CScript>(e).get_int_operand();
+            component_manager.get<CScript>(e).pc += 5;
 
-            auto& bp = component_manager.bullets[e].patterns[slot];
+            auto& bp = component_manager.get<CBulletManager>(e).patterns[slot];
             bp.rows = rows;
             bp.columns = columns;
             break;
           }
           case OpCode::ETAIM: {
-            auto slot = component_manager.scripts[e].get_int_operand();
-            component_manager.scripts[e].pc += 4;
-            auto mode = component_manager.scripts[e].get_int_operand();
-            component_manager.scripts[e].pc += 5;
+            auto slot = component_manager.get<CScript>(e).get_int_operand();
+            component_manager.get<CScript>(e).pc += 4;
+            auto mode = component_manager.get<CScript>(e).get_int_operand();
+            component_manager.get<CScript>(e).pc += 5;
 
-            auto& bp = component_manager.bullets[e].patterns[slot];
-            component_manager.bullets[e].patterns[slot].modes.reset();
-            component_manager.bullets[e].patterns[slot].modes.set(static_cast<BulletPFlag>(mode));
+            auto& bp = component_manager.get<CBulletManager>(e).patterns[slot];
+            component_manager.get<CBulletManager>(e).patterns[slot].modes.reset();
+            component_manager.get<CBulletManager>(e).patterns[slot].modes.set(static_cast<BulletPFlag>(mode));
             break;
           }
           case OpCode::MOVEPOS: {
-            auto x = component_manager.scripts[e].get_int_operand();
-            component_manager.scripts[e].pc += 4;
-            auto y = component_manager.scripts[e].get_int_operand();
-            component_manager.scripts[e].pc += 5;
-            component_manager.transforms[e].position = {
+            auto x = component_manager.get<CScript>(e).get_int_operand();
+            component_manager.get<CScript>(e).pc += 4;
+            auto y = component_manager.get<CScript>(e).get_int_operand();
+            component_manager.get<CScript>(e).pc += 5;
+            component_manager.get<CTransform2D>(e).position = {
               static_cast<f32>(x),
               static_cast<f32>(y)
             };
@@ -320,22 +319,22 @@ export namespace systems {
           }
 
           case OpCode::MOVEPOSTIME: {
-            auto time = component_manager.scripts[e].get_int_operand();
-            component_manager.scripts[e].pc += 4;
-            auto mode = component_manager.scripts[e].get_int_operand();
-            component_manager.scripts[e].pc += 4;
-            auto x = component_manager.scripts[e].get_int_operand();
-            component_manager.scripts[e].pc += 4;
-            auto y = component_manager.scripts[e].get_int_operand();
-            component_manager.scripts[e].pc += 5;
+            auto time = component_manager.get<CScript>(e).get_int_operand();
+            component_manager.get<CScript>(e).pc += 4;
+            auto mode = component_manager.get<CScript>(e).get_int_operand();
+            component_manager.get<CScript>(e).pc += 4;
+            auto x = component_manager.get<CScript>(e).get_int_operand();
+            component_manager.get<CScript>(e).pc += 4;
+            auto y = component_manager.get<CScript>(e).get_int_operand();
+            component_manager.get<CScript>(e).pc += 5;
 
-            auto delta = Vector2Subtract({static_cast<f32>(x), static_cast<f32>(y)}, component_manager.transforms[e].position);
-            component_manager.velocities[e].velocity = {
+            auto delta = Vector2Subtract({static_cast<f32>(x), static_cast<f32>(y)}, component_manager.get<CTransform2D>(e).position);
+            component_manager.get<CVelocity>(e).velocity = {
               .x = (delta.x / time ),
               .y = (delta.y / time )
             };
-            component_manager.scripts[e].waitctr = time;
-            component_manager.scripts[e].state.set(std::to_underlying(CScript::VMState::MOVING));
+            component_manager.get<CScript>(e).waitctr = time;
+            component_manager.get<CScript>(e).state.set(std::to_underlying(CScript::VMState::MOVING));
             break;
           }
           default:

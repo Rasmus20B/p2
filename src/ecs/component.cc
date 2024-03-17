@@ -13,69 +13,33 @@ export module ecs.component;
 
 export import ecs.components;
 
-export enum class ComponentID {
-  Transform2D,
-  Velocity,
-  Collider,
-  BulletInfo,
-  Health,
-  Parent,
-  Children,
-  Script,
-  Input,
-  Sprite,
-  Attractor,
-  BulletManager,
-  BulletPattern,
-  Size,
-};
-
-export struct ComponentManager {
+export template<typename... C>
+struct ComponentManager {
   ComponentManager() {
-    transforms.resize(10000);
-    velocities.resize(10000);
-    health.resize(10000);
-    sprites.resize(10000);
-    inputs.resize(10000);
-    attractions.resize(10000);
-    colliders.resize(10000);
-    scripts.resize(10000);
-    bullets.resize(10000);
+    std::apply([](auto&... c) {
+        (c.resize(10000), ...);
+        }, comps);
   }
-  std::vector<CTransform2D> transforms;
-  std::vector<CVelocity> velocities;
-  std::vector<CHealth> health;
-  std::vector<CSprite> sprites;
-  std::vector<CInput> inputs;
-  std::vector<CAttraction> attractions;
-  std::vector<CCollider> colliders;
-  std::vector<CScript> scripts;
-  std::vector<CBulletManager> bullets;
+
+  template<typename V>
+  V& get(size_t idx) {
+    return std::get<std::vector<V>>(comps)[idx]; 
+  }
+
+  template<typename V>
+  std::vector<V>& get() {
+    return std::get<std::vector<V>>(comps); 
+  }
+  std::tuple<std::vector<C>...> comps;
 };
 
-export inline ComponentManager component_manager{};
+export inline ComponentManager<CTransform2D,
+                               CVelocity,
+                               CScript,
+                               CHealth,
+                               CSprite,
+                               CInput,
+                               CAttraction,
+                               CCollider,
+                               CBulletManager> component_manager{};
 
-export template<typename T>
-consteval ComponentID get_component_id() {
-  if constexpr(std::is_same_v<T, CTransform2D>) {
-    return ComponentID::Transform2D;
-  }
-  else if constexpr(std::is_same_v<T, CVelocity>) {
-    return ComponentID::Velocity;
-  }
-  else if constexpr (std::is_same_v<T, CScript>) {
-    return ComponentID::Script;
-  }
-  else if constexpr (std::is_same_v<T, CHealth>) {
-    return ComponentID::Health;
-  }
-  else if constexpr (std::is_same_v<T, CSprite>) {
-    return ComponentID::Sprite;
-  }
-  else if constexpr (std::is_same_v<T, CInput>) {
-    return ComponentID::Input;
-  }
-  else if constexpr (std::is_same_v<T, CAttraction>) {
-    return ComponentID::Attractor;
-  }
-};
