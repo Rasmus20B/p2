@@ -33,20 +33,26 @@ consteval ComponentID get_component_id() {
   else if constexpr(std::is_same_v<T, CVelocity>) {
     return ComponentID::Velocity;
   }
-  else if constexpr (std::is_same_v<T, CScript>) {
-    return ComponentID::Script;
+  else if constexpr(std::is_same_v<T, CCollider>) {
+    return ComponentID::Collider;
+  }
+  else if constexpr(std::is_same_v<T, CBulletManager>) {
+    return ComponentID::BulletInfo;
   }
   else if constexpr (std::is_same_v<T, CHealth>) {
     return ComponentID::Health;
   }
-  else if constexpr (std::is_same_v<T, CSprite>) {
-    return ComponentID::Sprite;
-  }
   else if constexpr (std::is_same_v<T, CInput>) {
     return ComponentID::Input;
   }
+  else if constexpr (std::is_same_v<T, CSprite>) {
+    return ComponentID::Sprite;
+  }
   else if constexpr (std::is_same_v<T, CAttraction>) {
     return ComponentID::Attractor;
+  }
+  else if constexpr (std::is_same_v<T, CScript>) {
+    return ComponentID::Script;
   }
 };
 

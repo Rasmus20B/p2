@@ -40,7 +40,7 @@ void render(World &w) {
   auto s_entities = w.em.get_associated_entities<CSprite>();
 
   for(auto i: s_entities) {
-    const auto& transform = component_manager.get<CTransform2D>(i);
+    const auto transform = component_manager.get<CTransform2D>(i);
     DrawTextureV(*component_manager.get<CSprite>(i).sprite, 
         {
           transform.position.x - (transform.scale.x * 0.5f),
