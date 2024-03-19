@@ -47,18 +47,20 @@ export struct EntityManager {
   }
 
   template<typename ...T>
+  requires(is_component<T>, ...)
   void add_components(Entity e, T&&... components) {
     (add_component(e, std::forward<T&&>(components)), ...);
   }
 
   template<typename T>
+  requires(is_component<T>)
   void add_component(Entity e, T&& component) {
     component_manager.get<T>(e) = std::move(component);
     e_maps[std::to_underlying(get_component_id<T>())].try_emplace(e);
   }
 
-
   template<typename T>
+  requires(is_component<T>)
   constexpr std::vector<Entity> get_associated_entities() noexcept {
     auto c_id = std::to_underlying(get_component_id<T>());
     return std::vector<Entity>(e_maps[c_id].begin(), e_maps[c_id].end());

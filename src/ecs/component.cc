@@ -13,7 +13,13 @@ export module ecs.component;
 
 export import ecs.components;
 
+export template<typename T>
+concept is_component = requires {
+  requires get_component_id<T>() != ComponentID::Size;
+};
+
 export template<typename... C>
+requires(is_component<C>, ...)
 struct ComponentManager {
   ComponentManager() {
     std::apply([](auto&... c) {
@@ -22,11 +28,13 @@ struct ComponentManager {
   }
 
   template<typename V>
+  requires(is_component<V>)
   V& get(size_t idx) {
     return std::get<std::vector<V>>(comps)[idx]; 
   }
 
   template<typename V>
+  requires(is_component<V>)
   std::vector<V>& get() {
     return std::get<std::vector<V>>(comps); 
   }

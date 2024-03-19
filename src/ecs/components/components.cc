@@ -54,6 +54,7 @@ consteval ComponentID get_component_id() {
   else if constexpr (std::is_same_v<T, CScript>) {
     return ComponentID::Script;
   }
+  return ComponentID::Size;
 };
 
 template<ComponentID id>

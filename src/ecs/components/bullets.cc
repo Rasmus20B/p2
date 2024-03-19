@@ -34,3 +34,4 @@ export struct CBulletPatterns {
 export struct CBulletManager {
   std::array<CBulletPatterns, 16> patterns;
 };
+
