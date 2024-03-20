@@ -8,8 +8,11 @@ import rand_helper;
 
 #include "../../src/common/benchmark.h"
 
+using namespace ecs;
+using namespace ecs::component;
+
 struct World {
-  EntityManager em;
+  ecs::EntityManager em;
 };
 
 int main() {
@@ -42,7 +45,7 @@ int main() {
           .cache = { 0, 0 }
         }, {
           .callback { [=](const auto a, const auto b) {
-            deads.push(a);
+            ecs::deads.push(a);
             component_manager.get<CTransform2D>(b).scale.x += 0.005;
             component_manager.get<CTransform2D>(b).scale.y += 0.005;
             }
@@ -57,10 +60,10 @@ int main() {
     std::vector<Entity> entities(t_entities.begin(), t_entities.end());
     auto t_attractors = world.em.get_associated_entities<CAttraction>();
     std::vector<Entity> a_entities(t_attractors.begin(), t_attractors.end());
-    (systems::orient_to_attractor(a_entities));
-    (systems::move_transform(entities));
-    (systems::check_collisions_with_single_entity(a_entities, 1));
-    (systems::remove_out_of_bounds(entities));
+    (ecs::systems::orient_to_attractor(a_entities));
+    (ecs::systems::move_transform(entities));
+    (ecs::systems::check_collisions_with_single_entity(a_entities, 1));
+    (ecs::systems::remove_out_of_bounds(entities));
   }
   return 0;
 }

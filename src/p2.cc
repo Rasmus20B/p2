@@ -5,8 +5,6 @@ module;
 #define RAYGUI_IMPLEMENTATION
 #include "include/raygui.h"
 
-#include <typeinfo>
-
 import asset_manager;
 import ecs;
 import event;
@@ -25,12 +23,15 @@ import main_menu;
 
 export module p2;
 
+using namespace ecs;
+using namespace ecs::component;
+
 constinit float SLICE = 1.f;
 
 float dt = 0.f;;
 
 struct World {
-  EntityManager em;
+  ecs::EntityManager em;
 };
 
 void render(World &w) {
@@ -42,18 +43,11 @@ void render(World &w) {
   for(auto i: s_entities) {
     const auto transform = component_manager.get<CTransform2D>(i);
     DrawTextureV(*component_manager.get<CSprite>(i).sprite, 
-        {
-          transform.position.x - (transform.scale.x * 0.5f),
-          transform.position.y - (transform.scale.y * 0.5f),
-        },
-        RAYWHITE);
-    // DrawCircleV(
-    //     {
-    //     .x = component_manager.transforms[i].position.x ,
-    //     .y = component_manager.transforms[i].position.y
-    //     },
-    //     component_manager.transforms[i].scale.x * 0.5f,
-    //     RED);
+      {
+        transform.position.x - (transform.scale.x * 0.5f),
+        transform.position.y - (transform.scale.y * 0.5f),
+      },
+      RAYWHITE);
   }
 
   DrawFPS(20, 20);
@@ -65,20 +59,19 @@ void render(World &w) {
 void tick(World &w) {
 
   auto p_entities = w.em.get_associated_entities<CInput>();
-  systems::handle_inputs(p_entities, w.em);
+  ecs::systems::handle_inputs(p_entities, w.em);
 
-  // Bullet movement
   auto t_entities = w.em.get_associated_entities<CTransform2D>();
   std::vector<Entity> entities(t_entities.begin(), t_entities.end());
   auto t_attractors = w.em.get_associated_entities<CAttraction>();
   std::vector<Entity> a_entities(t_attractors.begin(), t_attractors.end());
-  systems::orient_to_attractor(a_entities);
-  systems::move_transform(entities);
-  systems::check_collisions_with_single_entity(a_entities, 1);
-  systems::remove_out_of_bounds(entities);
-  systems::remove_deads(w.em);
+  ecs::systems::orient_to_attractor(a_entities);
+  ecs::systems::move_transform(entities);
+  ecs::systems::check_collisions_with_single_entity(a_entities, 1);
+  ecs::systems::remove_out_of_bounds(entities);
+  ecs::systems::remove_deads(w.em);
   auto t_scripts = w.em.get_associated_entities<CScript>();
-  systems::progress_script(t_scripts, w.em);
+  ecs::systems::progress_script(t_scripts, w.em);
 }
 
 export void gameloop() {
@@ -116,7 +109,7 @@ export void gameloop() {
     );
 
   auto drop_sprite = assets.get_sprite(SpriteRef::DROP1);
-  for(int i = 0; i < 100; ++i) {
+  for(int i = 0; i < 99000; ++i) {
     auto other = world.em.create_entity();
     world.em.add_components<CTransform2D, CVelocity, CHealth, CAttraction, CCollider, CSprite>(other, {
         .position = { get_rand_float(config.windowDimensions.x ), get_rand_float(config.windowDimensions.y ) },
@@ -131,7 +124,7 @@ export void gameloop() {
           .gravity = 0.8,
         }, {
           .callback { [=](const auto a, const auto b) {
-            deads.push(a);
+            ecs::deads.push(a);
             component_manager.get<CTransform2D>(b).scale.x += 0.005;
             component_manager.get<CTransform2D>(b).scale.y += 0.005;
             }
